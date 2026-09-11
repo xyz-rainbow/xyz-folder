@@ -62,12 +62,16 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
    - **Strict Abort on Error**: If even a single file fails verification, the source is left completely untouched.
    - **Collision prevention**: If a file with the same name exists at destination, it is versioned as `filename (1).ext` — never overwritten.
 
-5. **Protected Ecosystem Paths & Binaries**:
-   - Video game saves (`Documents/My Games`, `Diablo IV`, `PCSX2`, `Square Enix`, `Need for Speed Heat`, etc.), system shells (`PowerShell`, `WindowsPowerShell`), hardware/SDR configurations (`HDSDR`, `Vital`), and services bound in Windows Registry or system services (`X:\[Tools]`, `SbieSvc.exe`) must be explicitly protected and never altered without authorization.
+5. **Protected Ecosystem Paths, Game Engines & Compatibility Junctions**:
+   - Video game saves (`Documents/My Games`, `Diablo IV`, `PCSX2`, `Square Enix`, `Need for Speed Heat`), system shells (`PowerShell`, `WindowsPowerShell`), hardware configurations (`HDSDR`, `Vital`), and services bound in Windows Registry (`X:\[Tools]`, `SbieSvc.exe`) must be explicitly protected and never altered without authorization.
+   - **User Shell Folders Audit**: Always audit `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` before organizing user directories to detect OS-bound paths (`Screenshots` GUID `{B7BEDE81...}`, `Camera Roll`, `My Pictures`).
+   - **Game Engine Hardcoded Paths**: Game engines like Cyberpunk 2077 (REDengine) hardcode screenshot paths (e.g. `Pictures\Cyberpunk 2077`). Never rename these paths if required by the game or user.
+   - **Transparent NTFS Junctions**: When organizing an OS-bound or application-bound folder into the emoji taxonomy (e.g. `Screenshots` $\rightarrow$ `[📸] [Screenshots]`), create an NTFS Directory Junction (`_winapi.CreateJunction` in Python or `mklink /J`) at the original path so Windows shortcuts (`Win + PrtScn`) and games continue writing seamlessly.
 
-6. **Windows Shell Lock & Access Denied Resolution**:
-   - Windows Explorer shell locks (thumbnail cache, zip associations, `.ShellClassInfo`, `desktop.ini`) often trigger `WinError 5` (Access Denied) or `WinError 32` (File in Use) when deleting large archives or system folders.
-   - Implement the safe `rename-truncate-remove` pattern or handle unblocking strategies to guarantee clean deletion of verified originals without leaving ghost files.
+6. **Windows Shell Lock, Attribute Remediation & Safe Deletion**:
+   - Windows Explorer frequently marks customized folders or directories with `.ShellClassInfo`/`desktop.ini` as `FILE_ATTRIBUTE_READONLY` (`0x1` / `Mode dar---`), throwing `WinError 5 (Access Denied)` during deletion.
+   - Always clear attributes to `FILE_ATTRIBUTE_NORMAL` (`128`) using `ctypes.windll.kernel32.SetFileAttributesW(path, 128)` before `os.rmdir` or `os.remove`.
+   - Explorer thumbnail caches, preview handlers, and zip associations trigger `WinError 32 (File in Use)`; use the `rename-truncate-remove` pattern to cleanly bypass locks.
 
 7. **Transaction Journaling & Full Rollback**:
    - Every operation writes a `.xyz-folder-manifest.json` transaction log.
@@ -86,6 +90,16 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
     - The bundled `scripts/organize.py` is a **pedagogical baseline reference**, NOT a static rigid executable.
     - For every organization task, the agent **MUST synthesize a dedicated custom script** at `.xyz-folder/organize_session.py` tailored specifically to the files, extensions, exclusions, and language discovered in that session.
     - The script is self-documenting: includes an architectural header summarizing the debate, the exact taxonomy map, pre-flight safety checks, and the OS Recycle Bin integration.
+
+11. **Semantic Media Inspection & Contextual Renaming**:
+    - Files frequently carry machine-generated, chaotic names: camera timestamps (`Screenshot 2026-05-20...`, `photomode_...`), random UUIDs/hashes (`41777bf1-5655-4fda-94f4-5fff3c6a7992.jpeg`), AI generator prefixes (`Gemini_Generated_Image_...`), or double-extensions (`image.jpg.jpg`).
+    - The agent **MUST NOT blindly move cryptic files**. Inspect media visually (using image viewing tools, OCR, dimensions, themes) or examine metadata/headers.
+    - Formulate and propose clean, descriptive **kebab-case** names (e.g. `synthwave-audio-visualizer-4k.png`, `synthwave-audio-visualizer-frontal.jpeg`) in the "CÓMO ERA" vs "CÓMO QUEDARÍA" proposal table before execution.
+
+12. **Shell Character & Trailing Path Escaping Safeguards**:
+    - **PowerShell variable expansion**: Folders starting with `$` (like `$Temp`) expand to empty string inside double quotes in pwsh (`"path\$Temp"` $\rightarrow$ `"path\"`). Always use single quotes or escape as ```$Temp``.
+    - **PowerShell bracket wildcards**: Folders with brackets like `[📚] [Documentos]` are parsed as regex character sets by PowerShell cmdlets (`Get-ChildItem`). Always use `-LiteralPath` instead of `-Path`.
+    - **Python raw string trailing backslash**: In Python, raw strings ending with a backslash like `r'path\'` escape the closing quote and cause a syntax error. Use forward slashes `'path/'` or double backslashes.
 
 ---
 
@@ -114,8 +128,10 @@ When an AI assistant executes this skill:
 Before writing code or moving data, advance **one folder at a time**:
 1. **Granular Tree Dump**: Run a deep `tree` command displaying every nested subfolder and file.
 2. **Recursive Emoji Taxonomy**: Ensure all nested subfolders receive `[emoji] [Carpeta]\`.
-3. **Protected Exclusions Check**: Confirm video game saves, application configs, and registry-bound paths are excluded.
-4. **Before vs After Visual**: Show the user the exact **"CÓMO ERA" vs "CÓMO QUEDARÍA"** mapping.
+3. **Protected Exclusions & Registry Check**: Confirm video game saves, application configs, and registry-bound paths are excluded. Audit `User Shell Folders` for OS-bound folders.
+4. **Visual & Semantic Renaming Proposals**: If files carry cryptic UUIDs, camera timestamps, or default generator prefixes (`Gemini_Generated_Image_...`), inspect their content visually or via metadata and propose clean kebab-case names.
+5. **Before vs After Visual Comparison**: Show the user the exact **"CÓMO ERA" vs "CÓMO QUEDARÍA"** table covering both folder hierarchy and proposed file renames.
+6. **Compatibility Junction Planning**: If an OS shortcut (`Win + PrtScn`) or game engine requires the original folder path, plan an NTFS Directory Junction (`mklink /J` / `_winapi.CreateJunction`).
 - **Wait for explicit user confirmation** before touching disk.
 
 ### Step 3: Script Synthesis in `.xyz-folder/organize_session.py`

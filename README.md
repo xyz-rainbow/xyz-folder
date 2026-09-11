@@ -47,6 +47,9 @@ npx skills add xyz-rainbow/xyz-folder -g -y
 - **Aesthetic Double-Bracket Layout & Recursive Subfolders**: Categorizes loose files and nested folders into clean `[emoji] [Category]/[emoji] [Subcategory]/[emoji] [Folder]/` directories with no orphan flat paths left behind.
 - **One-by-One with Full Tree Protocol**: Never runs blind mass-renaming. Operates folder by folder, dumping granular trees and presenting "CÓMO ERA" vs "CÓMO QUEDARÍA" before touching disk.
 - **Protected Paths & Game Saves**: Keeps game saves (Diablo IV, PCSX2, My Games, etc.), system consoles, and registry-bound binaries 100% protected and untouched.
+- **NTFS Compatibility Junctions & Shell Registry Awareness**: Automatically audits Windows `User Shell Folders` and game engine paths (like Cyberpunk 2077 photomode), deploying transparent NTFS junctions (`mklink /J`) to preserve OS shortcuts (`Win + PrtScn`) and game compatibility.
+- **Semantic Media Inspection & Contextual Renaming**: Inspects images visually, extracts OCR text, and examines metadata to propose clean kebab-case filenames instead of keeping cryptic UUIDs, camera timestamps, or default generator prefixes.
+- **Attribute Remediation & Lock Bypass**: Transparently clears Windows `FILE_ATTRIBUTE_READONLY` attributes and bypasses Explorer preview/thumbnail locks (`rename-truncate-remove`) to eliminate `Access Denied` and `File in Use` errors.
 - **Zero Data Loss Guarantee**: Atomic operations with programmatic byte-verification. Destination collisions automatically append safe version counters (`file (1).ext`) — never overwriting.
 - **Dynamic Localization**: Automatically detects and speaks your language (Spanish, English, etc.), creating localized folder names (e.g. `[🎨] [Multimedia]/[🖼️] [Imágenes]` or `[🎨] [Media]/[🖼️] [Images]`).
 
