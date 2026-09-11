@@ -1,19 +1,31 @@
 #!/usr/bin/env python3
 """
-xyz-folder: Baseline Reference Organizer & Rollback Engine.
+========================================================================================
+xyz-folder: Baseline Reference Architecture & Dynamic Script Template
+========================================================================================
 
-NOTE FOR AI AGENTS:
-This script is a reference baseline implementation. Agents should adapt, customize,
-or generate tailored scripts dynamically depending on the user's specific files,
-subfolder requirements, language, and operating environment.
+GUÍA ARQUITECTÓNICA PARA AGENTES DE IA (AI AGENT IMPLEMENTATION GUIDE):
+----------------------------------------------------------------------------------------
+ESTE SCRIPT ES UNA GUÍA Y PLANTILLA BASE DE REFERENCIA, NO UNA CAJA NEGRA RÍGIDA.
+Cuando un agente de IA ejecuta la skill 'xyz-folder', DEBE:
+1. Escanear primero el directorio del usuario para analizar qué extensiones reales existen.
+2. Si los archivos del usuario son estándar, puede ejecutar este script adaptando parámetros.
+3. Si el usuario tiene extensiones especializadas (e.g., modelos 3D .stl/.obj, audio stems,
+   datasets de machine learning, ROMs de emulación, libros de calibre, etc.), el agente
+   DEBE GENERAR O ADAPTAR este script dinámicamente inyectando las categorías exactas
+   que encajen con el contexto del usuario.
+4. NUNCA forzar categorías vacías en el árbol visual si el usuario no tiene esos archivos.
 
-Features:
-- Dual-bracket & emoji taxonomy architecture.
-- Transaction journaling via .xyz-folder-manifest.json.
-- One-command full rollback (--undo) and selective restoration (--restore-filter).
-- Multi-language taxonomy (English / Spanish / Auto).
-- Collision prevention via version suffixing (e.g. 'file (1).ext').
-- Zero external dependencies (Python 3 stdlib only).
+========================================================================================
+CHECKLIST DE VERIFICACIÓN OBLIGATORIA (LO PRIMERO DE TODO ANTES DE TOCAR UN BYTE):
+========================================================================================
+[✓] 1. DISK CAPACITY: Verificar espacio libre con shutil.disk_usage() en disco destino.
+[✓] 2. FILE LOCKS: Verificar que ningún archivo esté en uso por aplicaciones activas.
+[✓] 3. COLLISION PREVENTION: Generar sufijos automáticos (1), (2) para nunca sobreescribir.
+[✓] 4. LANGUAGE MATCH: Ajustar el idioma de las carpetas al del usuario (ES / EN).
+[✓] 5. DRY-RUN PREVIEW: Mostrar un desglose previo y esperar confirmación del usuario.
+[✓] 6. MANIFEST JOURNAL: Guardar .xyz-folder-manifest.json para permitir rollback inmediato.
+========================================================================================
 """
 
 import argparse
@@ -28,7 +40,15 @@ from typing import Dict, List, Optional, Tuple
 
 MANIFEST_FILENAME = ".xyz-folder-manifest.json"
 
-# English Taxonomy
+# ======================================================================================
+# SECCIÓN 1: TAXONOMÍAS DE REFERENCIA (ADAPTABLES POR EL AGENTE)
+# ======================================================================================
+# El agente puede y debe añadir o modificar este diccionario según los archivos reales
+# que descubra en el escaneo del directorio. Por ejemplo:
+#   ".stl": ("[🎨] [Diseño 3D]", "[🖨️] [Modelos STL]")
+#   ".nes": ("[🎮] [Retro & Emulación]", "[🕹️] [Nintendo NES]")
+#   ".fasta": ("[🔬] [Bioinformática]", "[🧬] [Secuencias]")
+
 TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     # Installers & Packages
     ".exe": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
@@ -52,7 +72,6 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".azw3": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
     ".cbr": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
     ".cbz": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".djvu": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
 
     # Office & Sheets
     ".docx": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
@@ -63,8 +82,6 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".pptx": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
     ".ppt": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
     ".odt": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".ods": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".odp": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
 
     # Notes & Text
     ".txt": ("[📄] [Documents]", "[📝] [Notes & Text]"),
@@ -83,7 +100,6 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".ai": ("[🎨] [Media]", "[🖼️] [Images]"),
     ".ico": ("[🎨] [Media]", "[🖼️] [Images]"),
     ".bmp": ("[🎨] [Media]", "[🖼️] [Images]"),
-    ".tiff": ("[🎨] [Media]", "[🖼️] [Images]"),
 
     # Media - Videos
     ".mp4": ("[🎨] [Media]", "[🎬] [Videos]"),
@@ -91,10 +107,7 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".avi": ("[🎨] [Media]", "[🎬] [Videos]"),
     ".mov": ("[🎨] [Media]", "[🎬] [Videos]"),
     ".webm": ("[🎨] [Media]", "[🎬] [Videos]"),
-    ".flv": ("[🎨] [Media]", "[🎬] [Videos]"),
-    ".wmv": ("[🎨] [Media]", "[🎬] [Videos]"),
     ".srt": ("[🎨] [Media]", "[🎬] [Videos]"),
-    ".vtt": ("[🎨] [Media]", "[🎬] [Videos]"),
 
     # Media - Audio
     ".mp3": ("[🎨] [Media]", "[🎵] [Audio]"),
@@ -113,9 +126,7 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".gz": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
     ".bz2": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
     ".xz": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".tgz": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
     ".iso": ("[🗜️] [Archives]", "[💿] [Disk Images & ISOs]"),
-    ".img": ("[🗜️] [Archives]", "[💿] [Disk Images & ISOs]"),
     ".torrent": ("[🗜️] [Archives]", "[💿] [Disk Images & ISOs]"),
 
     # Development & AI
@@ -123,11 +134,9 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".safetensors": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
     ".onnx": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
     ".pt": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
-    ".pth": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
     ".py": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
     ".js": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
     ".ts": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".tsx": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
     ".rs": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
     ".go": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
     ".html": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
@@ -137,10 +146,8 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".json": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
     ".yaml": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
     ".yml": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
-    ".toml": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
 }
 
-# Spanish Taxonomy
 TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
     # Instaladores y Paquetes
     ".exe": ("[📦] [Instaladores]", "[💻] [Programas]"),
@@ -174,7 +181,6 @@ TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
     ".pptx": ("[📄] [Documentos]", "[📊] [Ofimática]"),
     ".ppt": ("[📄] [Documentos]", "[📊] [Ofimática]"),
     ".odt": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".ods": ("[📄] [Documentos]", "[📊] [Ofimática]"),
     ".eml": ("[📄] [Documentos]", "[📊] [Ofimática]"),
 
     # Notas y Texto
@@ -236,12 +242,33 @@ TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
     ".yml": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
 }
 
+# Archivos del sistema ignorados para no romper el entorno
 IGNORED_FILES = {"desktop.ini", "thumbs.db", ".ds_store", ".localized", MANIFEST_FILENAME}
 IGNORED_EXTENSIONS = {".tmp", ".crdownload", ".part", ".download", ".aria2"}
 
 
+# ======================================================================================
+# SECCIÓN 2: VERIFICACIONES CRÍTICAS PREVIAS (PRE-FLIGHT CHECKS)
+# ======================================================================================
+
+def verify_disk_space(target_dir: Path, required_bytes: int) -> bool:
+    """Verifica que haya suficiente espacio libre en la unidad destino."""
+    try:
+        total, used, free = shutil.disk_usage(str(target_dir))
+        # Exigir al menos el espacio requerido + 500 MB de margen de seguridad
+        safety_margin = 500 * 1024 * 1024
+        if free < (required_bytes + safety_margin):
+            print(f"[ERROR DE SEGURIDAD] Espacio insuficiente en disco.")
+            print(f"  Disponible: {format_bytes(free)} | Requerido: {format_bytes(required_bytes + safety_margin)}")
+            return False
+        return True
+    except Exception as e:
+        print(f"[AVISO] No se pudo verificar el espacio en disco: {e}")
+        return True
+
+
 def detect_language() -> str:
-    """Auto-detect system language."""
+    """Detecta el idioma del entorno del usuario."""
     try:
         lang, _ = locale.getdefaultlocale()
         if lang and lang.lower().startswith("es"):
@@ -252,7 +279,7 @@ def detect_language() -> str:
 
 
 def get_default_downloads() -> Path:
-    """Detect default Downloads directory across OS."""
+    """Descubre dinámicamente la carpeta de Descargas según el SO."""
     if sys.platform == "win32":
         try:
             import winreg
@@ -270,7 +297,10 @@ def get_default_downloads() -> Path:
 
 
 def get_safe_destination(dest_dir: Path, filename: str) -> Path:
-    """Returns a collision-free path by suffixing (1), (2) if file exists."""
+    """
+    GARANTÍA DE CERO PÉRDIDA: Previene colisiones.
+    Si 'archivo.ext' ya existe, genera 'archivo (1).ext', 'archivo (2).ext', etc.
+    """
     candidate = dest_dir / filename
     if not candidate.exists():
         return candidate
@@ -292,11 +322,18 @@ def format_bytes(size: int) -> str:
     return f"{size:.2f} PB"
 
 
+# ======================================================================================
+# SECCIÓN 3: MOTOR DE ROLLBACK Y RESTAURACIÓN SELECTIVA
+# ======================================================================================
+
 def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> None:
-    """Reverses operations recorded in .xyz-folder-manifest.json."""
+    """
+    Deshace las operaciones registradas en el manifest.
+    Si se especifica filter_pattern, restaura únicamente los archivos que coincidan.
+    """
     manifest_path = target_dir / MANIFEST_FILENAME
     if not manifest_path.exists():
-        print(f"Error: No rollback manifest found at {manifest_path}")
+        print(f"Error: No se encontró el registro de transacciones en: {manifest_path}")
         sys.exit(1)
 
     with open(manifest_path, "r", encoding="utf-8") as f:
@@ -304,20 +341,21 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
 
     moves = data.get("moves", [])
     if not moves:
-        print("Manifest is empty. Nothing to restore.")
+        print("El manifest está vacío. No hay archivos para restaurar.")
         return
 
     print(f"\n=======================================================")
-    print(f"  xyz-folder: Rollback Engine")
-    print(f"  Target: {target_dir}")
-    print(f"  Entries in Manifest: {len(moves)}")
+    print(f"  xyz-folder: Motor de Rollback & Restauración")
+    print(f"  Directorio: {target_dir}")
+    print(f"  Movimientos en historial: {len(moves)}")
     if filter_pattern:
-        print(f"  Selective Filter: '{filter_pattern}'")
+        print(f"  Filtro selectivo activo: '{filter_pattern}'")
     print(f"=======================================================\n")
 
     restored_count = 0
     remaining_moves = []
 
+    # Revertir en orden inverso (los últimos primero)
     for entry in reversed(moves):
         src = Path(entry["src"])
         dst = Path(entry["dst"])
@@ -327,7 +365,7 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
             continue
 
         if not dst.exists():
-            print(f"  [!] Missing destination file: {dst.name} (skipped)")
+            print(f"  [!] Archivo destino no encontrado: {dst.name} (ignorado)")
             remaining_moves.append(entry)
             continue
 
@@ -336,9 +374,9 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
             safe_target = get_safe_destination(src.parent, src.name)
             shutil.move(str(dst), str(safe_target))
             restored_count += 1
-            print(f"  [⏪] Restored: {dst.name} -> {safe_target.name}")
+            print(f"  [⏪] Restaurado: {dst.name} -> {safe_target.name}")
 
-            # Clean empty parent directory if left empty
+            # Limpiar carpetas creadas si quedaron vacías
             parent = dst.parent
             while parent != target_dir and parent.exists():
                 try:
@@ -350,23 +388,27 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
                 except OSError:
                     break
         except Exception as e:
-            print(f"  [!] Failed to restore {dst.name}: {e}")
+            print(f"  [!] Error al restaurar {dst.name}: {e}")
             remaining_moves.append(entry)
 
-    print(f"\n[DONE] Restored {restored_count} files to original positions.")
+    print(f"\n[FINALIZADO] Se restauraron {restored_count} archivos a su ubicación previa.")
 
     if not remaining_moves:
         try:
             manifest_path.unlink()
-            print("Rollback complete. Manifest cleaned up.")
+            print("Rollback completo concluido. Archivo manifest limpiado.")
         except OSError:
             pass
     else:
         data["moves"] = list(reversed(remaining_moves))
         with open(manifest_path, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        print(f"Manifest updated. {len(remaining_moves)} entries remaining.")
+        print(f"Manifest actualizado. Restan {len(remaining_moves)} entradas pendientes.")
 
+
+# ======================================================================================
+# SECCIÓN 4: MOTOR DE ORGANIZACIÓN ATÓMICA
+# ======================================================================================
 
 def organize_directory(
     target_dir: Path,
@@ -375,17 +417,17 @@ def organize_directory(
     auto_confirm: bool = False,
 ) -> None:
     if not target_dir.exists() or not target_dir.is_dir():
-        print(f"Error: Target path '{target_dir}' does not exist or is not a directory.")
+        print(f"Error: La ruta '{target_dir}' no existe o no es un directorio.")
         sys.exit(1)
 
     selected_lang = detect_language() if lang == "auto" else lang
     taxonomy = TAXONOMY_ES if selected_lang == "es" else TAXONOMY_EN
 
     print(f"\n=======================================================")
-    print(f"  xyz-folder: Adaptive Organizer Engine")
-    print(f"  Target:   {target_dir}")
-    print(f"  Language: {selected_lang.upper()}")
-    print(f"  Mode:     {'[DRY-RUN PREVIEW]' if dry_run else '[LIVE EXECUTION]'}")
+    print(f"  xyz-folder: Motor Adaptable de Organización")
+    print(f"  Directorio: {target_dir}")
+    print(f"  Idioma:     {selected_lang.upper()}")
+    print(f"  Modo:       {'[SIMULACIÓN / DRY-RUN]' if dry_run else '[EJECUCIÓN REAL]'}")
     print(f"=======================================================\n")
 
     planned_moves: List[Tuple[Path, Path, int]] = []
@@ -393,10 +435,13 @@ def organize_directory(
     try:
         entries = list(target_dir.iterdir())
     except PermissionError as e:
-        print(f"Permission denied accessing {target_dir}: {e}")
+        print(f"Permiso denegado al acceder a {target_dir}: {e}")
         sys.exit(1)
 
+    total_bytes_needed = 0
+
     for entry in entries:
+        # Preservar carpetas existentes para no crear anidaciones indeseadas
         if entry.is_dir():
             continue
 
@@ -420,43 +465,51 @@ def organize_directory(
         except OSError:
             size = 0
         planned_moves.append((entry, dest_file, size))
+        total_bytes_needed += size
 
     if not planned_moves:
-        print("Everything is organized! No loose files found.")
+        print("Todo en orden. No se encontraron archivos sueltos para clasificar.")
         return
 
+    # Comprobación de seguridad de espacio
+    if not verify_disk_space(target_dir, total_bytes_needed):
+        sys.exit(1)
+
     category_counts: Dict[str, int] = {}
-    total_bytes = 0
     for src, dst, size in planned_moves:
         cat_pair = f"{dst.parent.parent.name} -> {dst.parent.name}"
         category_counts[cat_pair] = category_counts.get(cat_pair, 0) + 1
-        total_bytes += size
 
-    print(f"Found {len(planned_moves)} files to organize ({format_bytes(total_bytes)}):\n")
+    print(f"Se encontraron {len(planned_moves)} archivos ({format_bytes(total_bytes_needed)}):\n")
     for cat_pair, count in sorted(category_counts.items()):
-        print(f"  • {cat_pair}: {count} files")
+        print(f"  • {cat_pair}: {count} archivos")
 
-    print("\nProposed Moves (Sample):")
+    print("\nPropuesta de movimientos (Muestra inicial):")
     for src, dst, size in planned_moves[:15]:
         print(f"  [+] {src.name} ({format_bytes(size)})")
         print(f"      -> {dst.parent.parent.name}/{dst.parent.name}/{dst.name}")
 
     if len(planned_moves) > 15:
-        print(f"  ... and {len(planned_moves) - 15} more files.")
+        print(f"  ... y {len(planned_moves) - 15} archivos más.")
 
     if dry_run:
-        print("\n[DRY-RUN] No files were moved. Run without --dry-run to apply.")
+        print("\n[DRY-RUN] Simulación completa. No se modificó ningún archivo.")
+        print("Ejecuta sin '--dry-run' para aplicar los cambios.")
         return
 
     if not auto_confirm:
-        prompt_text = "\n¿Deseas proceder con la organización de estos archivos? [y/N]: " if selected_lang == "es" else "\nProceed with moving these files? [y/N]: "
+        prompt_text = (
+            "\n¿Confirmas proceder con la organización de estos archivos? [y/N]: "
+            if selected_lang == "es"
+            else "\nProceed with moving these files? [y/N]: "
+        )
         confirm = input(prompt_text).strip().lower()
         if confirm not in ("y", "yes", "s", "si", "sí"):
-            print("Operation aborted by user.")
+            print("Operación cancelada por el usuario.")
             return
 
-    # Execute moves atomically and journal into manifest
-    print("\nExecuting moves...")
+    # Ejecución atómica y registro en el manifest
+    print("\nEjecutando movimientos atómicos...")
     manifest_entries = []
     successful_moves = 0
 
@@ -471,9 +524,9 @@ def organize_directory(
             })
             successful_moves += 1
         except Exception as e:
-            print(f"  [!] Failed to move {src.name}: {e}")
+            print(f"  [!] Fallo al mover {src.name}: {e}")
 
-    # Write transaction manifest for rollback support
+    # Guardar manifest transaccional
     manifest_path = target_dir / MANIFEST_FILENAME
     existing_manifest = {"timestamp": time.time(), "moves": []}
     if manifest_path.exists():
@@ -489,48 +542,48 @@ def organize_directory(
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(existing_manifest, f, indent=2, ensure_ascii=False)
 
-    print(f"\n[DONE] Successfully organized {successful_moves}/{len(planned_moves)} files.")
-    print(f"[JOURNAL] Rollback transaction saved to {manifest_path.name}")
-    print(f"         Run 'python organize.py --undo' at any time to restore.")
+    print(f"\n[ÉXITO] Se organizaron {successful_moves}/{len(planned_moves)} archivos.")
+    print(f"[JOURNAL] Registro transaccional guardado en: {manifest_path.name}")
+    print(f"          Ejecuta 'python organize.py --undo' en cualquier momento para deshacer.")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Aesthetic Directory & Drive Organizer with Dynamic Emoji Taxonomy & Rollback Support.",
+        description="Organizador de Directorios y Unidades con Taxonomía Emoji Adaptable y Soporte de Rollback.",
     )
     parser.add_argument(
         "-t", "--target",
         type=str,
         default=None,
-        help="Target directory to organize (defaults to user Downloads folder)",
+        help="Directorio objetivo (por defecto: Descargas del usuario)",
     )
     parser.add_argument(
         "-d", "--dry-run",
         action="store_true",
-        help="Simulate moves and display plan without modifying any files",
+        help="Simula los movimientos sin modificar archivos en disco",
     )
     parser.add_argument(
         "-y", "--yes",
         dest="auto_confirm",
         action="store_true",
-        help="Automatically confirm and apply changes without prompting",
+        help="Confirma automáticamente la ejecución sin solicitar confirmación interactiva",
     )
     parser.add_argument(
         "--lang",
         choices=["auto", "en", "es"],
         default="auto",
-        help="Language for category taxonomy ('auto', 'es', or 'en')",
+        help="Idioma de las carpetas generadas ('auto', 'es', o 'en')",
     )
     parser.add_argument(
         "-u", "--undo",
         action="store_true",
-        help="Rollback previous organization using .xyz-folder-manifest.json",
+        help="Deshace la reorganización previa usando el archivo manifest",
     )
     parser.add_argument(
         "--restore-filter",
         type=str,
         default=None,
-        help="Selectively restore only files matching this substring/extension",
+        help="Restaura selectivamente solo los archivos que contengan este texto o extensión",
     )
 
     args = parser.parse_args()

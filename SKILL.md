@@ -62,13 +62,25 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
      - English: `[🎨] [Media]/[🖼️] [Images]`, `[📄] [Documents]/[📑] [PDFs & Books]`
    - Categories adapt to the actual contents found (e.g., 3D models, audio stems, game mods, research datasets).
 
-6. **Reference Script Notice**:
-   - The bundled `scripts/organize.py` is a **baseline reference engine**.
-   - Agents are instructed to tailor, extend, or generate custom migration and organization scripts dynamically to best fit the user's specific files, operating system, and storage topology.
+6. **Dynamic Script Synthesis & Customization**:
+   - The bundled `scripts/organize.py` is an **illustrative baseline reference**, NOT a rigid constraint.
+   - When an agent encounters unique projects, complex hierarchies, or domain-specific file formats (e.g., audio stems, 3D printing models, game ROMs, scientific datasets), **the agent is explicitly expected to synthesize a customized Python script on-the-fly** tailored directly to that folder and user requirements.
 
 ---
 
-## 2. Agent Execution Protocol (Step-by-Step)
+## 2. Mandatory Pre-Flight Verification Checklist (Check First of All)
+
+Before moving, altering, or executing any organization script:
+1. **[Disk Space]**: Check target drive capacity via `shutil.disk_usage()`. Ensure free space exceeds required batch size by at least 500 MB.
+2. **[File Locks]**: Confirm files are not locked by active processes (e.g., torrent clients, audio players, IDEs).
+3. **[Permissions]**: Verify write access on destination directories.
+4. **[Collision Prevention]**: Ensure destination collision handlers append `(1)`, `(2)` to prevent any overwrite.
+5. **[Language Alignment]**: Match folder labels to the user's preferred language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
+6. **[Transaction Manifest]**: Verify `.xyz-folder-manifest.json` will be written for instant rollback.
+
+---
+
+## 3. Agent Execution Protocol (Step-by-Step)
 
 When an AI assistant executes this skill:
 
