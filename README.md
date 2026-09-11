@@ -1,6 +1,6 @@
 # xyz-folder
 
-**Agent skill & standalone CLI engine for aesthetic directory and drive organization** — classifies messy folders into the clean `[emoji] [Category]/[emoji] [Subcategory]/` architecture with zero data loss.
+**AI agent skill & standalone CLI engine for aesthetic directory and drive organization** — dynamically organizes, categorizes, and normalizes messy folders into an adaptive emoji taxonomy with zero data loss.
 
 Works on **Windows, Linux, and macOS**. Zero external dependencies (Python 3 stdlib only).
 

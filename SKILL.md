@@ -1,9 +1,9 @@
 ---
 name: xyz-folder
 description: >
-  Autonomous protocol and CLI engine to organize, categorize, and normalize folders and drives
-  into the strict double-bracket and emoji aesthetic architecture ([emoji] [Category]/[emoji] [Subcategory]/).
-  Features zero-data-loss verification, collision prevention, file-signature taxonomy, and pre-flight dry-run inspection.
+  Autonomous protocol and CLI engine to dynamically organize, categorize, and normalize folders and drives
+  into an aesthetic double-bracket and emoji taxonomy. Features zero-data-loss verification, collision prevention,
+  file-signature taxonomy, and pre-flight dry-run inspection.
   Use when the user asks to "organize downloads", "clean my folders", "sort files", "organize drive",
   "ordenar descargas", "clasificar archivos con emojis", or runs /xyz-folder.
 ---
