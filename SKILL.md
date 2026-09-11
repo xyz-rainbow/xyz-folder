@@ -44,10 +44,11 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
    - Always scan the target directory, analyze file signatures, detect the user's language, and propose a tailored plan.
    - Debate edge cases, exclusions, and custom preferences with the user before touching disk.
 
-2. **Copy-First & Staged Backup Architecture (Never In-Place Destructive Move)**:
-   - **Always copy first**: The original files remain 100% intact as a live safety backup during the entire organization process. Never cut/move directly without a verified replica.
-   - **Verification before cleanup**: The agent writes files to the new categorized structure, verifies 100% byte integrity against the source, and reports proof of successful copy.
-   - **No deletions without explicit consent**: Original files are NEVER purged automatically. The agent must explicitly ask the user for approval ("luz verde", "visto bueno") before removing any source files.
+2. **Copy-First & Post-Verification Source Purge**:
+   - **Always copy first**: The original files remain 100% intact as a live safety backup during the entire transfer and organization process. Never cut/move directly without a verified replica.
+   - **Verification before cleanup**: The agent writes files to the new categorized structure and verifies 100% byte integrity against the source.
+   - **Source Purge upon 100% Verification**: Once the backup is 100% transferred, organized, and verified byte-by-byte with zero errors, the agent proceeds to eliminate the original files (moving them to the OS Recycle Bin / Trash) to release duplicate disk space and finalize the organization.
+   - **Strict Abort on Error**: If even a single file fails verification, the source is left completely untouched.
    - **Collision prevention**: If a file with the same name exists at destination, it is versioned as `filename (1).ext` — never overwritten.
 
 3. **Transaction Journaling & Full Rollback**:
@@ -106,14 +107,14 @@ Before writing code or moving data, debate the plan interactively with the user:
   - Copy-verify loop and transaction journaling.
   - OS Recycle Bin quarantine functions.
 
-### Step 4: Staged Copy, Verification & User Consent Gate
+### Step 4: Staged Copy, Verification & Automated Source Cleanup
 - **Copy First**: Copy files to the new categorized structure, keeping original files 100% untouched as a live safety backup.
 - **Journal Transaction**: Record every copied pair into `.xyz-folder/manifest.json`.
-- **Byte Verification**: Verify that destination file sizes match source sizes.
-- **Explicit Purge Consent Gate**:
-  - Present proof of 100% verified copy to the user.
-  - Ask: *"Copia 100% verificada. Los originales siguen intactos como backup. ¿Deseas enviarlos a la Papelera de Reciclaje del sistema para validar el orden durante unos días o conservarlos?"*
-  - **Only if the user explicitly approves ("luz verde", "visto bueno", "sí")**, move original files to the **OS Recycle Bin / Trash** (never permanent instant deletion), preserving an easy recovery window.
+- **Byte Verification**: Verify that 100% of destination file sizes and checksums match the source.
+- **Source Purge upon 100% Verification**:
+  - Once 100% of files are verified in the destination with zero errors, proceed to eliminate the original files by sending them to the **OS Recycle Bin / Trash** (or deleting verified originals).
+  - This frees up duplicate storage space immediately while preserving a safety recovery window in the OS Recycle Bin and the rollback manifest `.xyz-folder/manifest.json`.
+  - If any single file fails transfer or verification, the purge is immediately aborted and the original files remain completely intact.
 
 ### Step 5: Adaptive Tree Completion Report
 Present the final result with an adaptive visual tree matching the user's actual files and language:
