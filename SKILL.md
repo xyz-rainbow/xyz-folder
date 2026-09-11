@@ -3,8 +3,8 @@ name: xyz-folder
 description: >
   Autonomous protocol and CLI engine to dynamically organize, categorize, and normalize folders and drives
   into an aesthetic double-bracket and emoji taxonomy ([emoji] [Category]/[emoji] [Subcategory]/).
-  Features zero-data-loss verification, collision prevention, transaction journaling, full rollback/undo,
-  interactive pre-flight alignment, and language-adaptive folder structures.
+  Features recursive subfolder styling, zero-data-loss verification, transaction journaling, full rollback/undo,
+  one-by-one granular tree inspection, and language-adaptive folder structures.
   Use when the user asks to "organize downloads", "clean my folders", "sort files", "organize drive",
   "ordenar descargas", "clasificar archivos con emojis", "deshacer ordenamiento", or runs /xyz-folder.
 ---
@@ -41,44 +41,62 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
 
 1. **Interactive Alignment & Debate First**:
    - The agent **MUST NOT** blindly move files without confirmation.
-   - Always scan the target directory, analyze file signatures, detect the user's language, and propose a tailored plan.
+   - Always scan the target directory, analyze file signatures, detect the user language, and propose a tailored plan.
    - Debate edge cases, exclusions, and custom preferences with the user before touching disk.
 
-2. **Copy-First & Post-Verification Source Purge**:
+2. **One-by-One with Full Tree Protocol ("Uno a Uno con Tree Exhaustivo")**:
+   - When organizing or normalizing complex structures, drives, or category trees, **never perform blind mass-renaming**.
+   - Proceed strictly **folder by folder ("uno a uno")**.
+   - For every target category, execute a deep, granular `tree` inspection to display ALL nested subfolders and files before proposing changes.
+   - Always present a clear **"CÓMO ERA" vs "CÓMO QUEDARÍA"** visual comparison.
+   - Require explicit user authorization (green light) before touching disk on that specific folder.
+
+3. **Strict Recursive Subfolder Taxonomy (`[emoji] [Carpeta]\`)**:
+   - Every single level of subfolder must follow the double-bracket and emoji taxonomy: `[emoji] [Category]/[emoji] [Subcategory]/[emoji] [Sub-subcategory]/...`
+   - No orphan flat/raw folders left behind when normalizing a directory tree. Every internal subfolder (e.g., `[📦] [Models]`, `[🤖] [Cline]`, `[🌸] [AnimeJS]`, `[01] [🏛️] [Socrates & Nexus Core]`) receives its explicit `[emoji] [Name]` styling.
+
+4. **Copy-First & Post-Verification Source Purge**:
    - **Always copy first**: The original files remain 100% intact as a live safety backup during the entire transfer and organization process. Never cut/move directly without a verified replica.
    - **Verification before cleanup**: The agent writes files to the new categorized structure and verifies 100% byte integrity against the source.
    - **Source Purge upon 100% Verification**: Once the backup is 100% transferred, organized, and verified byte-by-byte with zero errors, the agent proceeds to eliminate the original files (moving them to the OS Recycle Bin / Trash) to release duplicate disk space and finalize the organization.
    - **Strict Abort on Error**: If even a single file fails verification, the source is left completely untouched.
    - **Collision prevention**: If a file with the same name exists at destination, it is versioned as `filename (1).ext` — never overwritten.
 
-3. **Transaction Journaling & Full Rollback**:
+5. **Protected Ecosystem Paths & Binaries**:
+   - Video game saves (`Documents/My Games`, `Diablo IV`, `PCSX2`, `Square Enix`, `Need for Speed Heat`, etc.), system shells (`PowerShell`, `WindowsPowerShell`), hardware/SDR configurations (`HDSDR`, `Vital`), and services bound in Windows Registry or system services (`X:\[Tools]`, `SbieSvc.exe`) must be explicitly protected and never altered without authorization.
+
+6. **Windows Shell Lock & Access Denied Resolution**:
+   - Windows Explorer shell locks (thumbnail cache, zip associations, `.ShellClassInfo`, `desktop.ini`) often trigger `WinError 5` (Access Denied) or `WinError 32` (File in Use) when deleting large archives or system folders.
+   - Implement the safe `rename-truncate-remove` pattern or handle unblocking strategies to guarantee clean deletion of verified originals without leaving ghost files.
+
+7. **Transaction Journaling & Full Rollback**:
    - Every operation writes a `.xyz-folder-manifest.json` transaction log.
    - At any time, the user can cancel progress, revert the entire operation back to original locations (`--undo`), or selectively restore individual files or subfolders (`--restore-filter`).
 
-4. **Safety Backups for Heavy Migrations**:
+8. **Safety Backups for Heavy Migrations**:
    - Before running massive file copies or cross-drive tools like `robocopy` / `rsync`, verify destination space, assess disk health (preventing HDD head thrashing), and establish safety backups/snapshots.
 
-5. **Dynamic Language & Taxonomy Localization**:
-   - Folder names and emojis adapt to the user's natural language:
+9. **Dynamic Language & Taxonomy Localization**:
+   - Folder names and emojis adapt to the user natural language:
      - Spanish: `[🎨] [Multimedia]/[🖼️] [Imágenes]`, `[📄] [Documentos]/[📑] [PDFs & Libros]`
      - English: `[🎨] [Media]/[🖼️] [Images]`, `[📄] [Documents]/[📑] [PDFs & Books]`
    - Categories adapt to the actual contents found (e.g., 3D models, audio stems, game mods, research datasets).
 
-6. **Custom Script Synthesis in `.xyz-folder/`**:
-   - The bundled `scripts/organize.py` is a **pedagogical baseline reference**, NOT a static rigid executable.
-   - For every organization task, the agent **MUST synthesize a dedicated custom script** at `.xyz-folder/organize_session.py` tailored specifically to the files, extensions, exclusions, and language discovered in that session.
-   - The script is self-documenting: includes an architectural header summarizing the debate, the exact taxonomy map, pre-flight safety checks, and the OS Recycle Bin integration.
+10. **Custom Script Synthesis in `.xyz-folder/`**:
+    - The bundled `scripts/organize.py` is a **pedagogical baseline reference**, NOT a static rigid executable.
+    - For every organization task, the agent **MUST synthesize a dedicated custom script** at `.xyz-folder/organize_session.py` tailored specifically to the files, extensions, exclusions, and language discovered in that session.
+    - The script is self-documenting: includes an architectural header summarizing the debate, the exact taxonomy map, pre-flight safety checks, and the OS Recycle Bin integration.
 
 ---
 
-## 2. Mandatory Pre-Flight Verification Checklist (Check First of All)
+## 2. Mandatory Pre-Flight Verification Checklist
 
 Before touching a single file or generating the execution script:
 1. **[Disk Space]**: Verify destination capacity with `shutil.disk_usage()`. Ensure available free space exceeds the total batch size by at least 500 MB.
 2. **[File Locks]**: Confirm target files are not in use or held by running processes (e.g. IDEs, media players, torrent clients).
 3. **[Permissions & Attributes]**: Verify read/write permissions and handle read-only attributes safely.
 4. **[Collision Prevention]**: Ensure destination naming logic appends `(1)`, `(2)` to strictly prevent any overwrite.
-5. **[Language Alignment]**: Match all directory labels to the user's natural language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
+5. **[Language Alignment]**: Match all directory labels to the user natural language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
 6. **[Transaction Journal]**: Ensure `.xyz-folder/manifest.json` will record every source-destination pair before any file operations.
 
 ---
@@ -88,24 +106,24 @@ Before touching a single file or generating the execution script:
 When an AI assistant executes this skill:
 
 ### Step 1: Dynamic Discovery & File Signature Analysis
-- Never assume hardcoded paths. Detect the user's primary folder dynamically via OS standards (Windows User Shell Folders / Linux XDG / macOS).
-- Detect the user's language (e.g., Spanish or English) to localize all category names.
+- Never assume hardcoded paths. Detect the user primary folder dynamically via OS standards (Windows User Shell Folders / Linux XDG / macOS).
+- Detect the user language (e.g., Spanish or English) to localize all category names.
 - Analyze file signatures and extensions. For unknown, extensionless, or exotic files, inspect **magic bytes** (binary headers) to infer their type.
 
-### Step 2: Interactive 3-Point Debate & Alignment Interview
-Before writing code or moving data, debate the plan interactively with the user:
-1. **Categories & Emojis**: Present the tailored taxonomy proposal adapted to their specific files.
-2. **Nesting Depth**: Confirm whether they prefer subcategories (`[Category]/[Subcategory]/`) or a flatter single-tier structure.
-3. **Exclusions & Edge Cases**: Ask if any specific folders, project repos, or extensions should be kept intact.
-4. **Unknown Files**: If ambiguous files remain, ask the user whether to isolate them in `[📦] [Sin Clasificar]` or leave them untouched in root.
-- **Wait for explicit user confirmation** before proceeding.
+### Step 2: Granular Tree Inspection & "CÓMO ERA vs CÓMO QUEDARÍA" Debate
+Before writing code or moving data, advance **one folder at a time**:
+1. **Granular Tree Dump**: Run a deep `tree` command displaying every nested subfolder and file.
+2. **Recursive Emoji Taxonomy**: Ensure all nested subfolders receive `[emoji] [Carpeta]\`.
+3. **Protected Exclusions Check**: Confirm video game saves, application configs, and registry-bound paths are excluded.
+4. **Before vs After Visual**: Show the user the exact **"CÓMO ERA" vs "CÓMO QUEDARÍA"** mapping.
+- **Wait for explicit user confirmation** before touching disk.
 
 ### Step 3: Script Synthesis in `.xyz-folder/organize_session.py`
 - Generate an auditable, tailored Python script inside `.xyz-folder/organize_session.py` containing:
   - Header documenting the agreed categories and exclusions.
   - Pre-flight disk space and file lock checks.
   - Copy-verify loop and transaction journaling.
-  - OS Recycle Bin quarantine functions.
+  - Safe removal patterns (`rename-truncate-remove`) and OS Recycle Bin integration.
 
 ### Step 4: Staged Copy, Verification & Automated Source Cleanup
 - **Copy First**: Copy files to the new categorized structure, keeping original files 100% untouched as a live safety backup.
@@ -117,53 +135,16 @@ Before writing code or moving data, debate the plan interactively with the user:
   - If any single file fails transfer or verification, the purge is immediately aborted and the original files remain completely intact.
 
 ### Step 5: Adaptive Tree Completion Report
-Present the final result with an adaptive visual tree matching the user's actual files and language:
+Present the final result with an adaptive visual tree matching the user actual files and language.
 
-```markdown
-### Reorganización de <Directorio_Objetivo> Completada 📂
-
-```text
-<Directorio_Objetivo>/
-├── [🎨] [<Categoría_A>]/
-│   ├── [🎬] [<Subcategoría_1>]/   (<N> elementos)
-│   └── [🖼️] [<Subcategoría_2>]/   (<N> elementos)
-├── [📄] [<Categoría_B>]/
-│   └── [📑] [<Subcategoría_3>]/   (<N> elementos)
-└── [🗜️] [<Categoría_C>]/
-    └── [📦] [<Subcategoría_4>]/   (<N> elementos)
-```
-*Total organizado: <N> archivos (<Tamaño_Total> reorganizados). Cero pérdida de datos.*
-```
-
-### Step 6: Disk & Background Tasks Telemetry (When Applicable)
-If a heavy background migration (robocopy/rsync/background worker) is active:
-
-```markdown
-### Estado del Disco y Tareas en Segundo Plano 💾
-
-- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync / task-xyz)>`
-- **Ruta Origen $\rightarrow$ Destino**: `<Origen>` $\rightarrow$ `<Destino>`
-- **Volumen & Progreso**: `<Tamaño transferido>` / `<Tamaño total>` (`<Porcentaje>%`)
-- **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos HDD).
-- **Espacio Libre en Disco**: `<Espacio libre restante>` en la unidad destino.
-```
-
-### Step 7: Rollback / Undo on Demand
+### Step 6: Rollback / Undo on Demand
 If the user requests to revert ("deshazlo", "undo", "vuelve atrás", "cancela el progreso"):
-- **Full Rollback**:
-  ```bash
-  python3 scripts/organize.py --target "/path/to/folder" --undo
-  ```
-  Every file is restored to its exact original path, and newly created empty folders are cleanly removed.
-- **Selective Restoration**:
-  ```bash
-  python3 scripts/organize.py --target "/path/to/folder" --restore-filter ".pdf"
-  ```
-  Restores only specific files or extensions while keeping the rest organized.
+- **Full Rollback**: `python3 scripts/organize.py --target "/path/to/folder" --undo`
+- **Selective Restoration**: `python3 scripts/organize.py --target "/path/to/folder" --restore-filter ".pdf"`
 
 ---
 
-## 3. Reference CLI Usage
+## 4. Reference CLI Usage
 
 ```bash
 # Preview proposed moves without touching files:
@@ -181,7 +162,7 @@ python3 scripts/organize.py --target "/path/to/folder" --restore-filter "2026"
 
 ---
 
-## 4. Illustrative Taxonomy Reference
+## 5. Illustrative Taxonomy Reference
 
 | English (`--lang en`) | Spanish (`--lang es`) | Example Extensions |
 | :--- | :--- | :--- |
