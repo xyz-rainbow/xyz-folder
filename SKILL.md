@@ -2,10 +2,11 @@
 name: xyz-folder
 description: >
   Autonomous protocol and CLI engine to dynamically organize, categorize, and normalize folders and drives
-  into an aesthetic double-bracket and emoji taxonomy. Features zero-data-loss verification, collision prevention,
-  file-signature taxonomy, and pre-flight dry-run inspection.
+  into an aesthetic double-bracket and emoji taxonomy ([emoji] [Category]/[emoji] [Subcategory]/).
+  Features zero-data-loss verification, collision prevention, transaction journaling, full rollback/undo,
+  interactive pre-flight alignment, and language-adaptive folder structures.
   Use when the user asks to "organize downloads", "clean my folders", "sort files", "organize drive",
-  "ordenar descargas", "clasificar archivos con emojis", or runs /xyz-folder.
+  "ordenar descargas", "clasificar archivos con emojis", "deshacer ordenamiento", or runs /xyz-folder.
 ---
 
 # xyz-folder — Aesthetic Directory & Drive Organizer
@@ -36,135 +37,160 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
 
 ---
 
-## 1. Core Principles
+## 1. Core Principles & Guardrails
 
-1. **Zero Data Loss Guarantee**:
-   - Files are moved atomically and verified.
+1. **Interactive Alignment & Debate First**:
+   - The agent **MUST NOT** blindly move files without confirmation.
+   - Always scan the target directory, analyze file signatures, detect the user's language, and propose a tailored plan.
+   - Debate edge cases, exclusions, and custom preferences with the user before touching disk.
+
+2. **Zero Data Loss Guarantee**:
+   - Files are moved atomically and verified byte-for-byte.
    - **Collision prevention**: If a file with the same name already exists at the destination, it is safely versioned as `filename (1).ext` — never overwritten.
-   - **No deletions without explicit consent**: Temporary or duplicate cleaning requires explicit user confirmation.
-2. **Strict Dual-Bracket Architecture**:
-   - Categories always follow `[emoji] [Category]`.
-   - Subcategories follow `[emoji] [Subcategory]`.
-   - Preserves system and existing already-bracketed directories without breaking them.
-3. **Pre-flight Dry-Run by Default**:
-   - Always supports simulating operations first (`--dry-run`) to review proposed moves before touching disk.
+   - **No deletions without explicit consent**: Old folders are only removed if 100% empty after move verification.
+
+3. **Transaction Journaling & Full Rollback**:
+   - Every operation writes a `.xyz-folder-manifest.json` transaction log.
+   - At any time, the user can cancel progress, revert the entire operation back to original locations (`--undo`), or selectively restore individual files or subfolders (`--restore-filter`).
+
+4. **Safety Backups for Heavy Migrations**:
+   - Before running massive file copies or cross-drive tools like `robocopy` / `rsync`, verify destination space, assess disk health (preventing HDD head thrashing), and establish safety backups/snapshots.
+
+5. **Dynamic Language & Taxonomy Localization**:
+   - Folder names and emojis adapt to the user's natural language:
+     - Spanish: `[🎨] [Multimedia]/[🖼️] [Imágenes]`, `[📄] [Documentos]/[📑] [PDFs & Libros]`
+     - English: `[🎨] [Media]/[🖼️] [Images]`, `[📄] [Documents]/[📑] [PDFs & Books]`
+   - Categories adapt to the actual contents found (e.g., 3D models, audio stems, game mods, research datasets).
+
+6. **Reference Script Notice**:
+   - The bundled `scripts/organize.py` is a **baseline reference engine**.
+   - Agents are instructed to tailor, extend, or generate custom migration and organization scripts dynamically to best fit the user's specific files, operating system, and storage topology.
 
 ---
 
-## 2. Quick Execution
+## 2. Agent Execution Protocol (Step-by-Step)
 
-Resolve the skill directory as the folder that contains this `SKILL.md` (works for `npx skills add`, `~/.agents/skills/`, or local installs).
+When an AI assistant executes this skill:
 
-### Dry-run (Inspect proposed moves):
-```bash
-python3 scripts/organize.py --target "/path/to/folder" --dry-run
-```
+### Step 1: Dynamic Discovery & Language Detection
+- Never assume hardcoded paths. Detect the user's primary folder dynamically:
+  - Windows: Query Registry `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` or `$env:USERPROFILE\Downloads`.
+  - Linux: Query `xdg-user-dir DOWNLOAD` or default to `~/Downloads`.
+  - macOS: Default to `~/Downloads`.
+  - Custom drives or projects: Resolve absolute path and verify existence.
+- Detect the user's conversational language (e.g., Spanish or English) to align category naming.
 
-### Organize default user Downloads:
-```bash
-python3 scripts/organize.py
-```
+### Step 2: Pre-Flight Scan & Alignment Interview
+- Inspect loose files and scan extensions.
+- Present a dry-run preview with file counts and byte sizes.
+- **Ask clarifying questions**:
+  - *"He detectado archivos multimedia, instaladores y documentos. ¿Prefieres agrupar los instaladores móviles (.apk) juntos o separados de los de PC?"*
+  - *"¿Hay carpetas o proyectos específicos que prefieras excluir de la reorganización?"*
+- Wait for user confirmation / green light before executing.
 
-### Organize a specific path with confirmation:
-```bash
-python3 scripts/organize.py --target "/path/to/folder"
-```
+### Step 3: Safety Checkpoints & Backup Verification
+- For small local sorts: proceed with atomic moves and manifest journaling.
+- For large multi-gigabyte or cross-volume migrations (robocopy, rsync, external HDDs):
+  - Check destination volume capacity and verify disk health.
+  - Create a safety backup/checkpoint if modifying critical directories.
+  - Guard disk I/O (avoid concurrent reads/writes on single spinning HDDs).
 
----
+### Step 4: Atomic Execution & Journaling
+- Write moves into `.xyz-folder-manifest.json` in the target directory:
+  ```json
+  {
+    "timestamp": 1789123456.0,
+    "target": "/path/to/folder",
+    "moves": [
+      {
+        "src": "/path/to/folder/invoice.pdf",
+        "dst": "/path/to/folder/[📄] [Documentos]/[📑] [PDFs]/invoice.pdf",
+        "size": 1048576
+      }
+    ]
+  }
+  ```
+- Move files atomically. Suffix collisions with `(1)`, `(2)`.
 
-## 3. Taxonomy & File Mappings
-
-| Category | Subcategory | Typical Extensions |
-| :--- | :--- | :--- |
-| `[📦] [Installers]` | `[💻] [Desktop Apps]` | `.exe`, `.msi`, `.appx`, `.msix`, `.pkg`, `.dmg`, `.deb`, `.rpm` |
-| `[📦] [Installers]` | `[📱] [Mobile & Packages]` | `.apk`, `.xapk`, `.ipa`, `.jar` |
-| `[📄] [Documents]` | `[📑] [PDFs & Books]` | `.pdf`, `.epub`, `.mobi`, `.azw3`, `.cbr`, `.cbz` |
-| `[📄] [Documents]` | `[📊] [Office & Sheets]` | `.docx`, `.doc`, `.xlsx`, `.xls`, `.csv`, `.pptx`, `.ppt` |
-| `[📄] [Documents]` | `[📝] [Notes & Text]` | `.txt`, `.md`, `.log`, `.rtf` |
-| `[🎨] [Media]` | `[🖼️] [Images]` | `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`, `.gif`, `.psd`, `.ai` |
-| `[🎨] [Media]` | `[🎬] [Videos]` | `.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.flv`, `.srt` |
-| `[🎨] [Media]` | `[🎵] [Audio]` | `.mp3`, `.flac`, `.wav`, `.m4a`, `.aac`, `.ogg`, `.opus` |
-| `[🗜️] [Archives]` | `[📦] [ZIP & RAR]` | `.zip`, `.rar`, `.7z`, `.tar`, `.gz`, `.bz2`, `.xz` |
-| `[🗜️] [Archives]` | `[💿] [Disk Images & ISOs]`| `.iso`, `.img`, `.vhd`, `.vhdx`, `.bin`, `.torrent` |
-| `[💻] [Development & AI]` | `[🤖] [Models & Weights]`| `.gguf`, `.safetensors`, `.onnx`, `.pt`, `.pth`, `.bin` |
-| `[💻] [Development & AI]` | `[🐙] [Repos & Code]` | `.py`, `.js`, `.ts`, `.rs`, `.go`, `.html`, `.css`, `.cpp`, `.c` |
-| `[💻] [Development & AI]` | `[🛠️] [Scripts & Config]`| `.sh`, `.bash`, `.ps1`, `.bat`, `.cmd`, `.json`, `.yaml`, `.yml`, `.env` |
-
----
-
-## 4. Agent Execution Protocol (Universal & Multi-User)
-
-When an AI assistant or agent executes this skill for any user on any platform:
-
-1. **Dynamic Target Discovery (Zero Hardcoded Paths)**:
-   - Always discover the user's primary folders dynamically.
-   - On Windows: Query Registry `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` or `$env:USERPROFILE\Downloads`.
-   - On Linux: Query `xdg-user-dir DOWNLOAD` or default to `~/Downloads`.
-   - On macOS: Default to `~/Downloads`.
-   - If an external drive or specific project path is provided, resolve the absolute path and verify existence.
-
-2. **Pre-Flight Dry-Run & Safety Check**:
-   - Always inspect files and present the proposed breakdown before moving files if ambiguity exists.
-   - **Zero Data Loss Guarantee**: Never overwrite. If a collision occurs at destination, suffix with `(1)`, `(2)`, etc.
-   - **No Unconfirmed Deletions**: Never delete unorganized folders or files without explicit confirmation.
-
-3. **Atomic Move & Verification**:
-   - Move files atomically.
-   - Programmatically verify that source file sizes match destination sizes.
-   - Only remove legacy source directories if they are 100% empty.
-
-## 5. Dynamic Reporting & Telemetry Protocol
-
-To maintain clarity and executive feedback across any AI agent (Antigravity, Claude Code, Cursor, OpenCode), the agent should format its output dynamically, **adapting completely to the user's actual files, language, and directory context**.
-
-> [!NOTE]
-> The examples below are **illustrative templates**, not rigid static lists. Do not force categories that were not present (e.g., if a user has no code, no audio, or no installers, do not output them). Generate the tree dynamically based strictly on what was discovered and organized.
-
-### Block A: Adaptive Completion Tree Report (Illustrative Example)
-Emit a visual hierarchical tree reflecting the actual categories created and matching the user's language:
+### Step 5: Adaptive Tree Completion Report
+Present the final result with an adaptive visual tree matching the user's actual files and language:
 
 ```markdown
 ### Reorganización de <Directorio_Objetivo> Completada 📂
-*(Or in English: `### Reorganization of <Target_Directory> Completed 📂`)*
 
-\`\`\`text
+```text
 <Directorio_Objetivo>/
 ├── [🎨] [<Categoría_A>]/
 │   ├── [🎬] [<Subcategoría_1>]/   (<N> elementos)
 │   └── [🖼️] [<Subcategoría_2>]/   (<N> elementos)
 ├── [📄] [<Categoría_B>]/
-│   ├── [📊] [<Subcategoría_3>]/   (<N> elementos)
-│   └── [📑] [<Subcategoría_4>]/   (<N> elementos)
+│   └── [📑] [<Subcategoría_3>]/   (<N> elementos)
 └── [🗜️] [<Categoría_C>]/
-    └── [📦] [<Subcategoría_5>]/   (<N> elementos)
-\`\`\`
+    └── [📦] [<Subcategoría_4>]/   (<N> elementos)
+```
 *Total organizado: <N> archivos (<Tamaño_Total> reorganizados). Cero pérdida de datos.*
 ```
 
-### Block B: Disk & Background Tasks Telemetry (When Applicable)
-Include this block **only** when managing large batch transfers, multi-gigabyte moves, or asynchronous operations across drives/partitions:
+### Step 6: Disk & Background Tasks Telemetry (When Applicable)
+If a heavy background migration (robocopy/rsync/background worker) is active:
 
 ```markdown
 ### Estado del Disco y Tareas en Segundo Plano 💾
-*(Or in English: `### Disk Status & Background Tasks 💾`)*
 
-- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync / worker)>`
+- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync / task-xyz)>`
 - **Ruta Origen $\rightarrow$ Destino**: `<Origen>` $\rightarrow$ `<Destino>`
 - **Volumen & Progreso**: `<Tamaño transferido>` / `<Tamaño total>` (`<Porcentaje>%`)
 - **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos HDD).
 - **Espacio Libre en Disco**: `<Espacio libre restante>` en la unidad destino.
 ```
 
-### Block C: Executive Telemetry Footer
-End the turn with a concise, parseable notification block tailored to the operation:
+### Step 7: Rollback / Undo on Demand
+If the user requests to revert ("deshazlo", "undo", "vuelve atrás", "cancela el progreso"):
+- **Full Rollback**:
+  ```bash
+  python3 scripts/organize.py --target "/path/to/folder" --undo
+  ```
+  Every file is restored to its exact original path, and newly created empty folders are cleanly removed.
+- **Selective Restoration**:
+  ```bash
+  python3 scripts/organize.py --target "/path/to/folder" --restore-filter ".pdf"
+  ```
+  Restores only specific files or extensions while keeping the rest organized.
 
-```text
-=== NOTIFY [STORAGE: <STATUS>] ===
-- TARGET          : <Ruta organizada>
-- ITEMS_ORGANIZED : <N> movidos | 0 fallos
-- FREE_SPACE      : <X> GB restantes en unidad
-- IMPACT          : Directorio normalizado bajo taxonomía dinámica [emoji] [Categoría]
-===================================
+---
+
+## 3. Reference CLI Usage
+
+```bash
+# Preview proposed moves without touching files:
+python3 scripts/organize.py --target "/path/to/folder" --dry-run
+
+# Organize with explicit language selection:
+python3 scripts/organize.py --target "/path/to/folder" --lang es
+
+# Full undo / rollback:
+python3 scripts/organize.py --target "/path/to/folder" --undo
+
+# Selective restore:
+python3 scripts/organize.py --target "/path/to/folder" --restore-filter "2026"
 ```
 
+---
 
+## 4. Illustrative Taxonomy Reference
+
+| English (`--lang en`) | Spanish (`--lang es`) | Example Extensions |
+| :--- | :--- | :--- |
+| `[📦] [Installers]/[💻] [Desktop Apps]` | `[📦] [Instaladores]/[💻] [Programas]` | `.exe`, `.msi`, `.appx`, `.pkg`, `.dmg`, `.deb` |
+| `[📦] [Installers]/[📱] [Mobile & Packages]`| `[📦] [Instaladores]/[📱] [Android & APK]` | `.apk`, `.xapk`, `.ipa`, `.jar` |
+| `[📄] [Documents]/[📑] [PDFs & Books]` | `[📄] [Documentos]/[📑] [PDFs & Libros]` | `.pdf`, `.epub`, `.mobi`, `.azw3`, `.cbr`, `.cbz` |
+| `[📄] [Documents]/[📊] [Office & Sheets]`| `[📄] [Documentos]/[📊] [Ofimática]` | `.docx`, `.doc`, `.xlsx`, `.xls`, `.csv`, `.pptx`|
+| `[📄] [Documents]/[📝] [Notes & Text]` | `[📄] [Documentos]/[📝] [Notas & Textos]` | `.txt`, `.md`, `.log`, `.rtf` |
+| `[🎨] [Media]/[🖼️] [Images]` | `[🎨] [Multimedia]/[🖼️] [Imágenes]` | `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`, `.gif` |
+| `[🎨] [Media]/[🎬] [Videos]` | `[🎨] [Multimedia]/[🎬] [Vídeos]` | `.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.srt` |
+| `[🎨] [Media]/[🎵] [Audio]` | `[🎨] [Multimedia]/[🎵] [Audio]` | `.mp3`, `.flac`, `.wav`, `.m4a`, `.aac`, `.ogg` |
+| `[🗜️] [Archives]/[📦] [ZIP & RAR]` | `[🗜️] [Comprimidos]/[📦] [ZIP & RAR]` | `.zip`, `.rar`, `.7z`, `.tar`, `.gz`, `.xz` |
+| `[🗜️] [Archives]/[💿] [Disk Images & ISOs]`| `[🗜️] [Comprimidos]/[💿] [Imágenes ISO]` | `.iso`, `.img`, `.vhd`, `.torrent` |
+| `[💻] [Development & AI]/[🤖] [Models]` | `[💻] [Desarrollo & AI]/[🤖] [Modelos & Pesos]` | `.gguf`, `.safetensors`, `.onnx`, `.pt` |
+| `[💻] [Development & AI]/[🐙] [Repos & Code]`| `[💻] [Desarrollo & AI]/[🐙] [Código & Repos]` | `.py`, `.js`, `.ts`, `.rs`, `.go`, `.html` |
+| `[💻] [Development & AI]/[🛠️] [Scripts]` | `[💻] [Desarrollo & AI]/[🛠️] [Scripts & Config]`| `.sh`, `.bash`, `.ps1`, `.bat`, `.json`, `.yaml` |

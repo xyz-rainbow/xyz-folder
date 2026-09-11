@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="520" viewBox="0 0 1100 520" role="img" aria-label="xyz-folder architecture">
+  <defs>
+    <linearGradient id="cardGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#15102a"/>
+      <stop offset="100%" stop-color="#0d091a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1100" height="520" fill="#0a0614"/>
+  
+  <text x="40" y="46" fill="#00f0ff" font-family="Segoe UI, -apple-system, sans-serif" font-size="24" font-weight="700">Adaptive Architecture &amp; Zero-Loss Engine</text>
+  <text x="40" y="74" fill="#8ad4e8" font-family="Segoe UI, -apple-system, sans-serif" font-size="14">How the agent negotiates, structures, journals, and protects your files across platforms</text>
+
+  <!-- Box 1: Discovery & Language Detection -->
+  <g transform="translate(40, 100)" font-family="Segoe UI, -apple-system, sans-serif">
+    <rect width="230" height="370" rx="12" fill="url(#cardGrad)" stroke="#00f0ff" stroke-width="1.5"/>
+    <rect x="16" y="16" width="36" height="36" rx="6" fill="#00f0ff" fill-opacity="0.15"/>
+    <text x="26" y="40" font-size="18">🔍</text>
+    <text x="62" y="38" fill="#e8f7ff" font-size="16" font-weight="700">1. Discovery</text>
+    <line x1="16" y1="64" x2="214" y2="64" stroke="#00f0ff" stroke-opacity="0.3"/>
+    
+    <text x="16" y="92" fill="#8ad4e8" font-size="13" font-weight="600">• Multi-OS Path Finder</text>
+    <text x="26" y="112" fill="#a0aec0" font-size="12">Win User Shell / Linux XDG</text>
+    <text x="26" y="128" fill="#a0aec0" font-size="12">macOS ~/Downloads / Drives</text>
+    
+    <text x="16" y="160" fill="#8ad4e8" font-size="13" font-weight="600">• Language Detection</text>
+    <text x="26" y="180" fill="#a0aec0" font-size="12">Auto-matches user tongue</text>
+    <text x="26" y="196" fill="#a0aec0" font-size="12">ES: [📄] [Documentos]</text>
+    <text x="26" y="212" fill="#a0aec0" font-size="12">EN: [📄] [Documents]</text>
+
+    <text x="16" y="244" fill="#8ad4e8" font-size="13" font-weight="600">• File Signature Scan</text>
+    <text x="26" y="264" fill="#a0aec0" font-size="12">MIME, extensions, sizes</text>
+    <text x="26" y="280" fill="#a0aec0" font-size="12">Identifies unique file types</text>
+    
+    <rect x="16" y="316" width="198" height="36" rx="6" fill="#00f0ff" fill-opacity="0.1"/>
+    <text x="26" y="338" fill="#00f0ff" font-size="12" font-weight="600">Zero assumptions</text>
+  </g>
+
+  <!-- Box 2: Interactive Alignment -->
+  <g transform="translate(300, 100)" font-family="Segoe UI, -apple-system, sans-serif">
+    <rect width="230" height="370" rx="12" fill="url(#cardGrad)" stroke="#c8ff00" stroke-width="1.5"/>
+    <rect x="16" y="16" width="36" height="36" rx="6" fill="#c8ff00" fill-opacity="0.15"/>
+    <text x="26" y="40" font-size="18">💬</text>
+    <text x="62" y="38" fill="#e8f7ff" font-size="16" font-weight="700">2. Pre-Flight Debate</text>
+    <line x1="16" y1="64" x2="214" y2="64" stroke="#c8ff00" stroke-opacity="0.3"/>
+    
+    <text x="16" y="92" fill="#c8ff00" font-size="13" font-weight="600">• Interactive Interview</text>
+    <text x="26" y="112" fill="#a0aec0" font-size="12">Presents proposed taxonomy</text>
+    <text x="26" y="128" fill="#a0aec0" font-size="12">Asks user preferences</text>
+
+    <text x="16" y="160" fill="#c8ff00" font-size="13" font-weight="600">• Dynamic Taxonomy</text>
+    <text x="26" y="180" fill="#a0aec0" font-size="12">Adapts to files found</text>
+    <text x="26" y="196" fill="#a0aec0" font-size="12">No rigid / empty folders</text>
+
+    <text x="16" y="228" fill="#c8ff00" font-size="13" font-weight="600">• Exclusions &amp; Scope</text>
+    <text x="26" y="248" fill="#a0aec0" font-size="12">Protects custom paths</text>
+    <text x="26" y="264" fill="#a0aec0" font-size="12">Agrees on subfolder depth</text>
+
+    <rect x="16" y="316" width="198" height="36" rx="6" fill="#c8ff00" fill-opacity="0.1"/>
+    <text x="26" y="338" fill="#c8ff00" font-size="12" font-weight="600">User confirmation gate</text>
+  </g>
+
+  <!-- Box 3: Safe Atomic Execution -->
+  <g transform="translate(560, 100)" font-family="Segoe UI, -apple-system, sans-serif">
+    <rect width="230" height="370" rx="12" fill="url(#cardGrad)" stroke="#ff2bd6" stroke-width="1.5"/>
+    <rect x="16" y="16" width="36" height="36" rx="6" fill="#ff2bd6" fill-opacity="0.15"/>
+    <text x="26" y="40" font-size="18">🛡️</text>
+    <text x="62" y="38" fill="#e8f7ff" font-size="16" font-weight="700">3. Zero-Loss Move</text>
+    <line x1="16" y1="64" x2="214" y2="64" stroke="#ff2bd6" stroke-opacity="0.3"/>
+    
+    <text x="16" y="92" fill="#ff2bd6" font-size="13" font-weight="600">• Transaction Journal</text>
+    <text x="26" y="112" fill="#a0aec0" font-size="12">Writes .xyz-manifest.json</text>
+    <text x="26" y="128" fill="#a0aec0" font-size="12">Original paths &amp; hashes</text>
+
+    <text x="16" y="160" fill="#ff2bd6" font-size="13" font-weight="600">• Collision Prevention</text>
+    <text x="26" y="180" fill="#a0aec0" font-size="12">Never overwrites existing</text>
+    <text x="26" y="196" fill="#a0aec0" font-size="12">Auto-suffixes "file (1).ext"</text>
+
+    <text x="16" y="228" fill="#ff2bd6" font-size="13" font-weight="600">• Atomic File Moves</text>
+    <text x="26" y="248" fill="#a0aec0" font-size="12">Byte-verified destination</text>
+    <text x="26" y="264" fill="#a0aec0" font-size="12">Cleans only empty folders</text>
+
+    <rect x="16" y="316" width="198" height="36" rx="6" fill="#ff2bd6" fill-opacity="0.1"/>
+    <text x="26" y="338" fill="#ff2bd6" font-size="12" font-weight="600">100% reversible</text>
+  </g>
+
+  <!-- Box 4: Rollback & Telemetry -->
+  <g transform="translate(820, 100)" font-family="Segoe UI, -apple-system, sans-serif">
+    <rect width="240" height="370" rx="12" fill="url(#cardGrad)" stroke="#00ffff" stroke-width="1.5"/>
+    <rect x="16" y="16" width="36" height="36" rx="6" fill="#00ffff" fill-opacity="0.15"/>
+    <text x="26" y="40" font-size="18">⏪</text>
+    <text x="62" y="38" fill="#e8f7ff" font-size="16" font-weight="700">4. Undo &amp; Telemetry</text>
+    <line x1="16" y1="64" x2="224" y2="64" stroke="#00ffff" stroke-opacity="0.3"/>
+    
+    <text x="16" y="92" fill="#00ffff" font-size="13" font-weight="600">• One-Click Full Rollback</text>
+    <text x="26" y="112" fill="#a0aec0" font-size="12">Restores exact state</text>
+    <text x="26" y="128" fill="#a0aec0" font-size="12">python organize.py --undo</text>
+
+    <text x="16" y="160" fill="#00ffff" font-size="13" font-weight="600">• Selective Restoration</text>
+    <text x="26" y="180" fill="#a0aec0" font-size="12">Restore specific file/folder</text>
+    <text x="26" y="196" fill="#a0aec0" font-size="12">without altering the rest</text>
+
+    <text x="16" y="228" fill="#00ffff" font-size="13" font-weight="600">• Visual Tree &amp; Disk</text>
+    <text x="26" y="248" fill="#a0aec0" font-size="12">Dynamic folder breakdown</text>
+    <text x="26" y="264" fill="#a0aec0" font-size="12">Background task metrics</text>
+
+    <rect x="16" y="316" width="208" height="36" rx="6" fill="#00ffff" fill-opacity="0.1"/>
+    <text x="26" y="338" fill="#00ffff" font-size="12" font-weight="600">Total control &amp; peace of mind</text>
+  </g>
+</svg>
