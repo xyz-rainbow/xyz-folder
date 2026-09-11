@@ -63,21 +63,22 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
      - English: `[🎨] [Media]/[🖼️] [Images]`, `[📄] [Documents]/[📑] [PDFs & Books]`
    - Categories adapt to the actual contents found (e.g., 3D models, audio stems, game mods, research datasets).
 
-6. **Dynamic Script Synthesis & Customization**:
-   - The bundled `scripts/organize.py` is an **illustrative baseline reference**, NOT a rigid constraint.
-   - When an agent encounters unique projects, complex hierarchies, or domain-specific file formats (e.g., audio stems, 3D printing models, game ROMs, scientific datasets), **the agent is explicitly expected to synthesize a customized Python script on-the-fly** tailored directly to that folder and user requirements.
+6. **Custom Script Synthesis in `.xyz-folder/`**:
+   - The bundled `scripts/organize.py` is a **pedagogical baseline reference**, NOT a static rigid executable.
+   - For every organization task, the agent **MUST synthesize a dedicated custom script** at `.xyz-folder/organize_session.py` tailored specifically to the files, extensions, exclusions, and language discovered in that session.
+   - The script is self-documenting: includes an architectural header summarizing the debate, the exact taxonomy map, pre-flight safety checks, and the OS Recycle Bin integration.
 
 ---
 
 ## 2. Mandatory Pre-Flight Verification Checklist (Check First of All)
 
-Before moving, altering, or executing any organization script:
-1. **[Disk Space]**: Check target drive capacity via `shutil.disk_usage()`. Ensure free space exceeds required batch size by at least 500 MB.
-2. **[File Locks]**: Confirm files are not locked by active processes (e.g., torrent clients, audio players, IDEs).
-3. **[Permissions]**: Verify write access on destination directories.
-4. **[Collision Prevention]**: Ensure destination collision handlers append `(1)`, `(2)` to prevent any overwrite.
-5. **[Language Alignment]**: Match folder labels to the user's preferred language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
-6. **[Transaction Manifest]**: Verify `.xyz-folder-manifest.json` will be written for instant rollback.
+Before touching a single file or generating the execution script:
+1. **[Disk Space]**: Verify destination capacity with `shutil.disk_usage()`. Ensure available free space exceeds the total batch size by at least 500 MB.
+2. **[File Locks]**: Confirm target files are not in use or held by running processes (e.g. IDEs, media players, torrent clients).
+3. **[Permissions & Attributes]**: Verify read/write permissions and handle read-only attributes safely.
+4. **[Collision Prevention]**: Ensure destination naming logic appends `(1)`, `(2)` to strictly prevent any overwrite.
+5. **[Language Alignment]**: Match all directory labels to the user's natural language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
+6. **[Transaction Journal]**: Ensure `.xyz-folder/manifest.json` will record every source-destination pair before any file operations.
 
 ---
 
@@ -85,50 +86,34 @@ Before moving, altering, or executing any organization script:
 
 When an AI assistant executes this skill:
 
-### Step 1: Dynamic Discovery & Language Detection
-- Never assume hardcoded paths. Detect the user's primary folder dynamically:
-  - Windows: Query Registry `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` or `$env:USERPROFILE\Downloads`.
-  - Linux: Query `xdg-user-dir DOWNLOAD` or default to `~/Downloads`.
-  - macOS: Default to `~/Downloads`.
-  - Custom drives or projects: Resolve absolute path and verify existence.
-- Detect the user's conversational language (e.g., Spanish or English) to align category naming.
+### Step 1: Dynamic Discovery & File Signature Analysis
+- Never assume hardcoded paths. Detect the user's primary folder dynamically via OS standards (Windows User Shell Folders / Linux XDG / macOS).
+- Detect the user's language (e.g., Spanish or English) to localize all category names.
+- Analyze file signatures and extensions. For unknown, extensionless, or exotic files, inspect **magic bytes** (binary headers) to infer their type.
 
-### Step 2: Pre-Flight Scan & Alignment Interview
-- Inspect loose files and scan extensions.
-- Present a dry-run preview with file counts and byte sizes.
-- **Ask clarifying questions**:
-  - *"He detectado archivos multimedia, instaladores y documentos. ¿Prefieres agrupar los instaladores móviles (.apk) juntos o separados de los de PC?"*
-  - *"¿Hay carpetas o proyectos específicos que prefieras excluir de la reorganización?"*
-- Wait for user confirmation / green light before executing.
+### Step 2: Interactive 3-Point Debate & Alignment Interview
+Before writing code or moving data, debate the plan interactively with the user:
+1. **Categories & Emojis**: Present the tailored taxonomy proposal adapted to their specific files.
+2. **Nesting Depth**: Confirm whether they prefer subcategories (`[Category]/[Subcategory]/`) or a flatter single-tier structure.
+3. **Exclusions & Edge Cases**: Ask if any specific folders, project repos, or extensions should be kept intact.
+4. **Unknown Files**: If ambiguous files remain, ask the user whether to isolate them in `[📦] [Sin Clasificar]` or leave them untouched in root.
+- **Wait for explicit user confirmation** before proceeding.
 
-### Step 3: Safety Checkpoints & Backup Verification
-- For small local sorts: proceed with atomic moves and manifest journaling.
-- For large multi-gigabyte or cross-volume migrations (robocopy, rsync, external HDDs):
-  - Check destination volume capacity and verify disk health.
-  - Create a safety backup/checkpoint if modifying critical directories.
-  - Guard disk I/O (avoid concurrent reads/writes on single spinning HDDs).
+### Step 3: Script Synthesis in `.xyz-folder/organize_session.py`
+- Generate an auditable, tailored Python script inside `.xyz-folder/organize_session.py` containing:
+  - Header documenting the agreed categories and exclusions.
+  - Pre-flight disk space and file lock checks.
+  - Copy-verify loop and transaction journaling.
+  - OS Recycle Bin quarantine functions.
 
 ### Step 4: Staged Copy, Verification & User Consent Gate
-- **Copy First**: Copy files to the new categorized structure (or staging area), preserving source files 100% intact as a live backup.
-- **Journal Transaction**: Record every copied pair into `.xyz-folder/manifest.json`:
-  ```json
-  {
-    "timestamp": 1789123456.0,
-    "target": "/path/to/folder",
-    "operations": [
-      {
-        "src": "/path/to/folder/invoice.pdf",
-        "dst": "/path/to/folder/[📄] [Documentos]/[📑] [PDFs]/invoice.pdf",
-        "size": 1048576,
-        "verified": true
-      }
-    ]
-  }
-  ```
-- **Byte Verification**: Compare size and hashes between source and destination.
-- **Purge Confirmation Gate**: Only after 100% verification is shown to the user, ask if they want to purge the original files or keep them as backup:
-  *"Copia 100% verificada. El origen permanece intacto como backup. ¿Deseas purgar los originales para liberar espacio o conservarlos?"*
-- **Zero In-Place Overwrites**: Suffix collisions with `(1)`, `(2)`.
+- **Copy First**: Copy files to the new categorized structure, keeping original files 100% untouched as a live safety backup.
+- **Journal Transaction**: Record every copied pair into `.xyz-folder/manifest.json`.
+- **Byte Verification**: Verify that destination file sizes match source sizes.
+- **Explicit Purge Consent Gate**:
+  - Present proof of 100% verified copy to the user.
+  - Ask: *"Copia 100% verificada. Los originales siguen intactos como backup. ¿Deseas enviarlos a la Papelera de Reciclaje del sistema para validar el orden durante unos días o conservarlos?"*
+  - **Only if the user explicitly approves ("luz verde", "visto bueno", "sí")**, move original files to the **OS Recycle Bin / Trash** (never permanent instant deletion), preserving an easy recovery window.
 
 ### Step 5: Adaptive Tree Completion Report
 Present the final result with an adaptive visual tree matching the user's actual files and language:
