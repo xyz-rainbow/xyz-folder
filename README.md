@@ -41,10 +41,11 @@ npx skills add xyz-rainbow/xyz-folder -g -y
 ## Key Capabilities
 
 - **Interactive Alignment First**: The agent will never blindly scramble your files. It scans signatures, asks clarifying questions, debates proposed categories with you, and waits for your confirmation.
+- **Copy-First & Live Backup Architecture**: Files are copied and verified byte-by-byte into the new structure while keeping the original files 100% untouched as a live safety backup. The agent never deletes the source without your explicit consent.
 - **Full Rollback & Selective Undo**: Every operation writes a `.xyz-folder-manifest.json` transaction log. You can cancel progress, revert everything back to its exact original state (`--undo`), or selectively restore individual files/folders.
 - **Safety Checkpoints & Backup Verification**: Automatically checks disk health and available capacity. For large operations or cross-disk migrations (robocopy/rsync), ensures safety checkpoints exist before moving bytes.
 - **Aesthetic Double-Bracket Layout**: Categorizes loose files into clean `[emoji] [Category]/[emoji] [Subcategory]/` directories.
-- **Zero Data Loss Guarantee**: Atomic moves with programmatic byte-verification. Destination collisions automatically append safe version counters (`file (1).ext`) — never overwriting.
+- **Zero Data Loss Guarantee**: Atomic operations with programmatic byte-verification. Destination collisions automatically append safe version counters (`file (1).ext`) — never overwriting.
 - **Dynamic Localization**: Automatically detects and speaks your language (Spanish, English, etc.), creating localized folder names (e.g. `[🎨] [Multimedia]/[🖼️] [Imágenes]` or `[🎨] [Media]/[🖼️] [Images]`).
 
 ![Architecture](assets/architecture.svg)

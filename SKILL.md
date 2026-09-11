@@ -44,10 +44,11 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
    - Always scan the target directory, analyze file signatures, detect the user's language, and propose a tailored plan.
    - Debate edge cases, exclusions, and custom preferences with the user before touching disk.
 
-2. **Zero Data Loss Guarantee**:
-   - Files are moved atomically and verified byte-for-byte.
-   - **Collision prevention**: If a file with the same name already exists at the destination, it is safely versioned as `filename (1).ext` — never overwritten.
-   - **No deletions without explicit consent**: Old folders are only removed if 100% empty after move verification.
+2. **Copy-First & Staged Backup Architecture (Never In-Place Destructive Move)**:
+   - **Always copy first**: The original files remain 100% intact as a live safety backup during the entire organization process. Never cut/move directly without a verified replica.
+   - **Verification before cleanup**: The agent writes files to the new categorized structure, verifies 100% byte integrity against the source, and reports proof of successful copy.
+   - **No deletions without explicit consent**: Original files are NEVER purged automatically. The agent must explicitly ask the user for approval ("luz verde", "visto bueno") before removing any source files.
+   - **Collision prevention**: If a file with the same name exists at destination, it is versioned as `filename (1).ext` — never overwritten.
 
 3. **Transaction Journaling & Full Rollback**:
    - Every operation writes a `.xyz-folder-manifest.json` transaction log.
@@ -107,22 +108,27 @@ When an AI assistant executes this skill:
   - Create a safety backup/checkpoint if modifying critical directories.
   - Guard disk I/O (avoid concurrent reads/writes on single spinning HDDs).
 
-### Step 4: Atomic Execution & Journaling
-- Write moves into `.xyz-folder-manifest.json` in the target directory:
+### Step 4: Staged Copy, Verification & User Consent Gate
+- **Copy First**: Copy files to the new categorized structure (or staging area), preserving source files 100% intact as a live backup.
+- **Journal Transaction**: Record every copied pair into `.xyz-folder/manifest.json`:
   ```json
   {
     "timestamp": 1789123456.0,
     "target": "/path/to/folder",
-    "moves": [
+    "operations": [
       {
         "src": "/path/to/folder/invoice.pdf",
         "dst": "/path/to/folder/[📄] [Documentos]/[📑] [PDFs]/invoice.pdf",
-        "size": 1048576
+        "size": 1048576,
+        "verified": true
       }
     ]
   }
   ```
-- Move files atomically. Suffix collisions with `(1)`, `(2)`.
+- **Byte Verification**: Compare size and hashes between source and destination.
+- **Purge Confirmation Gate**: Only after 100% verification is shown to the user, ask if they want to purge the original files or keep them as backup:
+  *"Copia 100% verificada. El origen permanece intacto como backup. ¿Deseas purgar los originales para liberar espacio o conservarlos?"*
+- **Zero In-Place Overwrites**: Suffix collisions with `(1)`, `(2)`.
 
 ### Step 5: Adaptive Tree Completion Report
 Present the final result with an adaptive visual tree matching the user's actual files and language:
