@@ -113,65 +113,58 @@ When an AI assistant or agent executes this skill for any user on any platform:
    - Programmatically verify that source file sizes match destination sizes.
    - Only remove legacy source directories if they are 100% empty.
 
----
+## 5. Dynamic Reporting & Telemetry Protocol
 
-## 5. Standard Reporting & Telemetry Protocol
+To maintain clarity and executive feedback across any AI agent (Antigravity, Claude Code, Cursor, OpenCode), the agent should format its output dynamically, **adapting completely to the user's actual files, language, and directory context**.
 
-To maintain universal clarity and executive feedback across agents (Antigravity, Claude Code, Cursor, OpenCode), the agent **MUST** structure its completion messages with the following dedicated report blocks:
+> [!NOTE]
+> The examples below are **illustrative templates**, not rigid static lists. Do not force categories that were not present (e.g., if a user has no code, no audio, or no installers, do not output them). Generate the tree dynamically based strictly on what was discovered and organized.
 
-### Block A: Completion Tree Report
-Emit a visual tree matching the language of the user (e.g., Spanish or English):
+### Block A: Adaptive Completion Tree Report (Illustrative Example)
+Emit a visual hierarchical tree reflecting the actual categories created and matching the user's language:
 
 ```markdown
 ### Reorganización de <Directorio_Objetivo> Completada 📂
+*(Or in English: `### Reorganization of <Target_Directory> Completed 📂`)*
 
 \`\`\`text
 <Directorio_Objetivo>/
-├── [🎨] [Media]/
-│   ├── [🎬] [Videos]/         (<X> elementos)
-│   ├── [🎵] [Audio]/          (<X> elementos)
-│   └── [🖼️] [Imágenes]/       (<X> elementos)
-├── [💻] [Desarrollo & AI]/
-│   ├── [🌐] [Web & HTML]/      (<X> elementos)
-│   ├── [📝] [Prompts & Specs]/ (<X> elementos)
-│   └── [🧩] [Extensiones]/    (<X> elementos)
-├── [📄] [Documentos]/
-│   ├── [✈️] [Telegram]/       (<X> elementos)
-│   ├── [📊] [Ofimática]/      (<X> elementos)
-│   └── [📑] [PDFs & Libros]/   (<X> elementos)
-├── [📦] [Instaladores]/
-│   ├── [🎮] [Mods & Plugins]/ (<X> elementos)
-│   └── [📱] [Android & APK]/  (<X> elementos)
-└── [🗜️] [Comprimidos]/
-    ├── [💾] [Backups]/        (<X> elementos)
-    ├── [📁] [Extraídos]/      (<X> elementos)
-    └── [📦] [ZIP & RAR]/      (<X> elementos)
+├── [🎨] [<Categoría_A>]/
+│   ├── [🎬] [<Subcategoría_1>]/   (<N> elementos)
+│   └── [🖼️] [<Subcategoría_2>]/   (<N> elementos)
+├── [📄] [<Categoría_B>]/
+│   ├── [📊] [<Subcategoría_3>]/   (<N> elementos)
+│   └── [📑] [<Subcategoría_4>]/   (<N> elementos)
+└── [🗜️] [<Categoría_C>]/
+    └── [📦] [<Subcategoría_5>]/   (<N> elementos)
 \`\`\`
 *Total organizado: <N> archivos (<Tamaño_Total> reorganizados). Cero pérdida de datos.*
 ```
 
-### Block B: Disk & Background Tasks Telemetry
-Whenever performing large batch copies, multi-gigabyte moves, or asynchronous operations across drives/partitions, the agent **MUST** include real-time disk status:
+### Block B: Disk & Background Tasks Telemetry (When Applicable)
+Include this block **only** when managing large batch transfers, multi-gigabyte moves, or asynchronous operations across drives/partitions:
 
 ```markdown
 ### Estado del Disco y Tareas en Segundo Plano 💾
+*(Or in English: `### Disk Status & Background Tasks 💾`)*
 
-- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync)>`
+- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync / worker)>`
 - **Ruta Origen $\rightarrow$ Destino**: `<Origen>` $\rightarrow$ `<Destino>`
 - **Volumen & Progreso**: `<Tamaño transferido>` / `<Tamaño total>` (`<Porcentaje>%`)
-- **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos).
+- **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos HDD).
 - **Espacio Libre en Disco**: `<Espacio libre restante>` en la unidad destino.
 ```
 
 ### Block C: Executive Telemetry Footer
-End the turn with a concise, parseable notification block:
+End the turn with a concise, parseable notification block tailored to the operation:
 
 ```text
 === NOTIFY [STORAGE: <STATUS>] ===
 - TARGET          : <Ruta organizada>
 - ITEMS_ORGANIZED : <N> movidos | 0 fallos
 - FREE_SPACE      : <X> GB restantes en unidad
-- IMPACT          : Directorio normalizado bajo arquitectura [emoji] [Categoría]
+- IMPACT          : Directorio normalizado bajo taxonomía dinámica [emoji] [Categoría]
 ===================================
 ```
+
 
