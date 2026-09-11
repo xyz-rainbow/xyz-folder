@@ -92,9 +92,86 @@ python3 scripts/organize.py --target "/path/to/folder"
 
 ---
 
-## 4. Agent Guidelines
+## 4. Agent Execution Protocol (Universal & Multi-User)
 
-When an AI assistant executes this skill:
-1. **Identify the target**: If no path is specified, ask or locate the user's primary Downloads folder.
-2. **Run a Dry-Run first**: Present the category count and proposed plan to the user.
-3. **Execute atomically**: Move files cleanly, handle duplicates with suffix counters, and report total files organized and space reorganized.
+When an AI assistant or agent executes this skill for any user on any platform:
+
+1. **Dynamic Target Discovery (Zero Hardcoded Paths)**:
+   - Always discover the user's primary folders dynamically.
+   - On Windows: Query Registry `HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders` or `$env:USERPROFILE\Downloads`.
+   - On Linux: Query `xdg-user-dir DOWNLOAD` or default to `~/Downloads`.
+   - On macOS: Default to `~/Downloads`.
+   - If an external drive or specific project path is provided, resolve the absolute path and verify existence.
+
+2. **Pre-Flight Dry-Run & Safety Check**:
+   - Always inspect files and present the proposed breakdown before moving files if ambiguity exists.
+   - **Zero Data Loss Guarantee**: Never overwrite. If a collision occurs at destination, suffix with `(1)`, `(2)`, etc.
+   - **No Unconfirmed Deletions**: Never delete unorganized folders or files without explicit confirmation.
+
+3. **Atomic Move & Verification**:
+   - Move files atomically.
+   - Programmatically verify that source file sizes match destination sizes.
+   - Only remove legacy source directories if they are 100% empty.
+
+---
+
+## 5. Standard Reporting & Telemetry Protocol
+
+To maintain universal clarity and executive feedback across agents (Antigravity, Claude Code, Cursor, OpenCode), the agent **MUST** structure its completion messages with the following dedicated report blocks:
+
+### Block A: Completion Tree Report
+Emit a visual tree matching the language of the user (e.g., Spanish or English):
+
+```markdown
+### Reorganización de <Directorio_Objetivo> Completada 📂
+
+\`\`\`text
+<Directorio_Objetivo>/
+├── [🎨] [Media]/
+│   ├── [🎬] [Videos]/         (<X> elementos)
+│   ├── [🎵] [Audio]/          (<X> elementos)
+│   └── [🖼️] [Imágenes]/       (<X> elementos)
+├── [💻] [Desarrollo & AI]/
+│   ├── [🌐] [Web & HTML]/      (<X> elementos)
+│   ├── [📝] [Prompts & Specs]/ (<X> elementos)
+│   └── [🧩] [Extensiones]/    (<X> elementos)
+├── [📄] [Documentos]/
+│   ├── [✈️] [Telegram]/       (<X> elementos)
+│   ├── [📊] [Ofimática]/      (<X> elementos)
+│   └── [📑] [PDFs & Libros]/   (<X> elementos)
+├── [📦] [Instaladores]/
+│   ├── [🎮] [Mods & Plugins]/ (<X> elementos)
+│   └── [📱] [Android & APK]/  (<X> elementos)
+└── [🗜️] [Comprimidos]/
+    ├── [💾] [Backups]/        (<X> elementos)
+    ├── [📁] [Extraídos]/      (<X> elementos)
+    └── [📦] [ZIP & RAR]/      (<X> elementos)
+\`\`\`
+*Total organizado: <N> archivos (<Tamaño_Total> reorganizados). Cero pérdida de datos.*
+```
+
+### Block B: Disk & Background Tasks Telemetry
+Whenever performing large batch copies, multi-gigabyte moves, or asynchronous operations across drives/partitions, the agent **MUST** include real-time disk status:
+
+```markdown
+### Estado del Disco y Tareas en Segundo Plano 💾
+
+- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync)>`
+- **Ruta Origen $\rightarrow$ Destino**: `<Origen>` $\rightarrow$ `<Destino>`
+- **Volumen & Progreso**: `<Tamaño transferido>` / `<Tamaño total>` (`<Porcentaje>%`)
+- **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos).
+- **Espacio Libre en Disco**: `<Espacio libre restante>` en la unidad destino.
+```
+
+### Block C: Executive Telemetry Footer
+End the turn with a concise, parseable notification block:
+
+```text
+=== NOTIFY [STORAGE: <STATUS>] ===
+- TARGET          : <Ruta organizada>
+- ITEMS_ORGANIZED : <N> movidos | 0 fallos
+- FREE_SPACE      : <X> GB restantes en unidad
+- IMPACT          : Directorio normalizado bajo arquitectura [emoji] [Categoría]
+===================================
+```
+
