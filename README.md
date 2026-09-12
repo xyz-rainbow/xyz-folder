@@ -43,8 +43,8 @@ npx skills add xyz-rainbow/xyz-folder -g -y
 - **Interactive Alignment First**: The agent will never blindly scramble your files. It scans signatures, asks clarifying questions, debates proposed categories with you, and waits for your confirmation.
 - **Cognitive Template & Non-Deterministic Framework**: Not a rigid schema. The agent dynamically derives a tailored taxonomy from modular archetypes, adapting to your specific workflow domain and files.
 - **Dynamic Language & Culture Auto-Alignment**: Automatically detects and adapts to your language (English, Spanish, German, French, Japanese, etc.), translating all category names and aligning semantic emojis.
-- **Copy-First & Live Backup Architecture**: Files are copied and verified byte-by-byte into the new structure while keeping original files 100% untouched as a live safety backup. The agent never deletes the source without your explicit consent.
-- **Full Rollback & Selective Undo**: Every operation writes a `.xyz-folder-manifest.json` transaction log. You can cancel progress, revert everything back to its exact original state (`--undo`), or selectively restore individual files/folders.
+- **Copy-First & Live Backup Architecture**: Cross-drive migrations copy first and verify byte-by-byte before purging the source. Same-drive work is an atomic directory move. The agent never deletes a "duplicate" without a content hash in the plan.
+- **Full Rollback & Selective Undo**: Every operation writes `.xyz-folder/manifest.json`. You can cancel progress, revert everything (`--undo`), or restore a subset (`--restore-filter`). Legacy `.xyz-folder-manifest.json` is still accepted.
 - **Git Repository & Workspace Invariance**: Preserves active Git repositories (`.git/`) and code projects 100% untouched. Repo folder names, commit history, and branches remain invariant while parent containers are organized and IDE workspace files (`*.code-workspace`) are automatically updated.
 - **Windows Service Registry Lock Protection**: Audits `HKLM\SYSTEM\CurrentControlSet\Services` to guarantee that executables linked to active Windows background services (e.g. `SbieSvc.exe`) are preserved without process locks or crashes.
 - **Storage Topology & Anti-Thrashing Engine**: Distinguishes between same-drive atomic pointer updates and cross-drive staged copy-first migrations. Enforces shallow scans on large or mechanical HDDs to eliminate head thrashing and multi-minute freezes.
@@ -55,6 +55,8 @@ npx skills add xyz-rainbow/xyz-folder -g -y
 - **Semantic Media Inspection & Contextual Renaming**: Inspects images visually, extracts OCR text, and examines metadata to propose clean kebab-case filenames instead of keeping cryptic UUIDs, camera timestamps, or default generator prefixes.
 - **Attribute Remediation & Lock Bypass**: Transparently clears Windows `FILE_ATTRIBUTE_READONLY` attributes and bypasses Explorer preview/thumbnail locks (`rename-truncate-remove`) to eliminate `Access Denied` and `File in Use` errors.
 - **Zero Data Loss Guarantee**: Atomic operations with programmatic byte-verification. Destination collisions automatically append safe version counters (`file (1).ext`) — never overwriting.
+- **Inventory Coverage & User-Named Roots**: Every depth-1 child must appear in the plan. User-named principals stay as roots; presets fill subfolders. Unsorted buckets (`Otros`, `Random`, `Downloads`) get their own pass.
+- **Open-the-File Renaming**: Generic names (`Untitled document`, numeric hashes) are classified by content, not filename. Identity documents are not given scenic names.
 
 ![Architecture](assets/architecture.svg)
 
@@ -93,7 +95,8 @@ Documents Hub/
 ├── [📦] [Exports]/                # Bookmarks, database dumps, application exports
 ├── [📺] [Media-Content]/          # Video scripts, presentation outlines, transcripts
 ├── [🤖] [AI-Tools]/               # Agent configurations, MCP manifests, custom prompts
-└── [🎨] [Ascii]/                  # ASCII art collections, brand assets, retro themes
+├── [🎨] [Ascii]/                  # ASCII art collections, brand assets, retro themes
+└── [📦] [Other]/                  # Staging leftovers (empty or listed at close)
 ```
 
 ### 3. Visual & Creative Media Hub (`[🎨] [Media]`)

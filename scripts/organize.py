@@ -24,7 +24,7 @@ CHECKLIST DE VERIFICACIÓN OBLIGATORIA (LO PRIMERO DE TODO ANTES DE TOCAR UN BYT
 [✓] 3. COLLISION PREVENTION: Generar sufijos automáticos (1), (2) para nunca sobreescribir.
 [✓] 4. LANGUAGE MATCH: Ajustar el idioma de las carpetas al del usuario (ES / EN).
 [✓] 5. DRY-RUN PREVIEW: Mostrar un desglose previo y esperar confirmación del usuario.
-[✓] 6. MANIFEST JOURNAL: Guardar .xyz-folder-manifest.json para permitir rollback inmediato.
+[✓] 6. MANIFEST JOURNAL: Guardar .xyz-folder/manifest.json para permitir rollback inmediato.
 ========================================================================================
 """
 
@@ -38,7 +38,23 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-MANIFEST_FILENAME = ".xyz-folder-manifest.json"
+MANIFEST_DIRNAME = ".xyz-folder"
+MANIFEST_FILENAME = "manifest.json"
+LEGACY_MANIFEST_FILENAME = ".xyz-folder-manifest.json"
+
+
+def resolve_manifest_path(target_dir: Path, for_write: bool = False) -> Path:
+    """Canonical journal is .xyz-folder/manifest.json; undo still reads the legacy root file."""
+    canonical = target_dir / MANIFEST_DIRNAME / MANIFEST_FILENAME
+    legacy = target_dir / LEGACY_MANIFEST_FILENAME
+    if for_write:
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        return canonical
+    if canonical.exists():
+        return canonical
+    if legacy.exists():
+        return legacy
+    return canonical
 
 # ======================================================================================
 # SECCIÓN 1: TAXONOMÍAS DE REFERENCIA (ADAPTABLES POR EL AGENTE)
@@ -243,7 +259,7 @@ TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
 }
 
 # Archivos del sistema ignorados para no romper el entorno
-IGNORED_FILES = {"desktop.ini", "thumbs.db", ".ds_store", ".localized", MANIFEST_FILENAME}
+IGNORED_FILES = {"desktop.ini", "thumbs.db", ".ds_store", ".localized", LEGACY_MANIFEST_FILENAME}
 IGNORED_EXTENSIONS = {".tmp", ".crdownload", ".part", ".download", ".aria2"}
 
 
@@ -331,7 +347,7 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
     Deshace las operaciones registradas en el manifest.
     Si se especifica filter_pattern, restaura únicamente los archivos que coincidan.
     """
-    manifest_path = target_dir / MANIFEST_FILENAME
+    manifest_path = resolve_manifest_path(target_dir, for_write=False)
     if not manifest_path.exists():
         print(f"Error: No se encontró el registro de transacciones en: {manifest_path}")
         sys.exit(1)
@@ -526,15 +542,16 @@ def organize_directory(
         except Exception as e:
             print(f"  [!] Fallo al mover {src.name}: {e}")
 
-    # Guardar manifest transaccional
-    manifest_path = target_dir / MANIFEST_FILENAME
+    # Guardar manifest transaccional (canonical path; merge legacy if present)
     existing_manifest = {"timestamp": time.time(), "moves": []}
-    if manifest_path.exists():
+    read_path = resolve_manifest_path(target_dir, for_write=False)
+    if read_path.exists():
         try:
-            with open(manifest_path, "r", encoding="utf-8") as f:
+            with open(read_path, "r", encoding="utf-8") as f:
                 existing_manifest = json.load(f)
         except Exception:
             pass
+    manifest_path = resolve_manifest_path(target_dir, for_write=True)
 
     existing_manifest["moves"].extend(manifest_entries)
     existing_manifest["last_updated"] = time.time()

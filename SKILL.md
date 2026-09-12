@@ -46,7 +46,9 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
 > 1. Analyze the user's specific directory contents and file signatures.
 > 2. Detect the user's primary language (or requested language) and translate/localize all category names.
 > 3. Respect user-specific rules, personal taxonomies, and naming conventions (e.g. numeric ordering `[01] [📂]`, kebab-case, custom emojis).
-> 4. Synthesize a bespoke taxonomy proposal derived from the presets, present it for debate, and wait for explicit confirmation.
+> 4. If the user names principal categories, those names **are the root containers**. Presets fill **subfolders** under them. Never flatten a user-named principal. Never invent a magic count of flat roots.
+> 5. Keep a staging bucket (`[📦] [Other]` / `[📦] [Otros]`) for leftovers. Staging is not a dump: close it empty or list every residual.
+> 6. Synthesize a bespoke taxonomy proposal derived from the presets, present it for debate, and wait for explicit confirmation.
 
 ---
 
@@ -74,16 +76,20 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
    - **Source Purge upon 100% Verification**: Only after 100% verified with zero errors, eliminate originals (sending to OS Recycle Bin/Trash when possible) to release disk space.
    - **Strict Abort on Error**: If even a single file fails verification, the source is left completely untouched.
    - **Collision prevention**: If a file with the same name exists at destination, version as `filename (1).ext` — never overwrite.
+   - **Duplicate deletion requires a content hash in the plan**: Delete a copy only when SHA-256 (or equivalent) matches a kept file **and that hash is written in the plan**. Same size, similar name, or cloud suffixes `(1)` `(2)` `(3)` are not proof. Office/zip containers can share a byte size and still differ.
+   - **Styled vs raw twins**: After emoji/Drive migrations, `[Foo]` and `[🎨] [Foo]` often coexist. Hash the pair; keep one canonical styled folder.
 
 5. **Git Repository Invariance ("Invariabilidad Absoluta de Repositorios Git")**:
    - When organizing code drives or project trees (`[💻] [Projects]`), the agent must **NEVER modify or rename repository root directories** (e.g. `xyz-folder` remains `xyz-folder`, never `[📦] [xyz-folder]`).
    - Never mutate `.git/` directories, branches, commits, or git configurations.
    - Category styling (`[emoji] [Category]`) is strictly applied to **parent container directories** (e.g. `[🚀] [Main-Apps]/xyz-folder`).
+   - During discovery, **list every `.git` repository in the plan** (path only). A plan that omits a repo is invalid.
    - Run `git status` on representative repositories after container movement to verify zero working tree corruption.
 
 6. **IDE Workspace & Project Link Synchronization**:
    - Moving code containers breaks relative paths in IDE workspace files (e.g. `*.code-workspace`, `.vscode/`, `.idea/`).
    - The agent must proactively locate and update relative path references in workspace files to keep IDE projects working seamlessly.
+   - Retarget `.lnk`, `.url`, and desktop shortcuts whose targets live inside a moved container. Do not rename a folder that would break those links without updating them.
 
 7. **Windows Services & Deep Registry Executable Locks**:
    - Audit `HKLM\SYSTEM\CurrentControlSet\Services` for active services bound to binaries on secondary drives (e.g. `SbieSvc.exe` in `[Tools]`).
@@ -98,7 +104,9 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
 9. **Storage Topology Awareness (Atomic Same-Drive vs Staged Cross-Drive)**:
    - **Same-Drive Moves**: On the same filesystem (NTFS/exFAT), moving directories is an instantaneous atomic pointer update (`[System.IO.Directory]::Move`).
    - **Cross-Drive Migrations (SSD -> HDD)**: Must use Staged Copy-First with strict 100% byte-by-byte integrity verification before purging source.
-   - **Anti-Thrashing on Large/Mechanical Drives**: Deep recursive scans (`os.walk`) over huge folder trees (`node_modules`, build artifacts) on HDDs or exFAT cause severe head thrashing and multi-minute freezes. Enforce shallow (depth=1) inspection for top-level category mapping.
+   - **Anti-Thrashing on Large/Mechanical Drives**: Deep recursive scans (`os.walk`) over huge folder trees on HDDs or exFAT cause severe head thrashing. Enforce shallow (depth=1) inspection for top-level mapping.
+   - **Do not descend** into `node_modules`, `venv`, `.venv`, `__pycache__`, `.git`, Calibre library internals (`metadata.db` and per-author book folders), or firmware/ROM/SD image trees. Move those containers as a unit.
+   - Same-drive directory moves are pointer updates: do not SHA-256 every file in the tree. Hash only files proposed for deletion as duplicates.
 
 10. **Windows Shell Lock, Attribute Remediation & Safe Deletion**:
     - Windows Explorer frequently marks customized folders or directories with `.ShellClassInfo`/`desktop.ini` as `FILE_ATTRIBUTE_READONLY` (`0x1` / `Mode dar---`), throwing `WinError 5 (Access Denied)`.
@@ -106,17 +114,25 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
     - Explorer thumbnail caches, preview handlers, and zip associations trigger `WinError 32 (File in Use)`; use the `rename-truncate-remove` pattern to cleanly bypass locks.
 
 11. **Transaction Journaling & Full Rollback**:
-    - Every operation writes a `.xyz-folder-manifest.json` transaction log.
+    - Every operation writes `.xyz-folder/manifest.json` (create the directory if needed). Record each source→destination **before** the move.
+    - Legacy `.xyz-folder-manifest.json` at the target root is still accepted for `--undo`.
     - At any time, the user can cancel progress, revert the entire operation back to original locations (`--undo`), or selectively restore individual files or subfolders (`--restore-filter`).
 
 12. **Residual Crash Dumps & Sandbox Purging**:
     - Scan for and safely purge stale application crashpad dumps (`.dmp`), Electron runtime caches, and installer extraction temps in root `tmp/` folders when requested, releasing gigabytes of disk space.
 
-13. **Semantic Media Inspection & Contextual Renaming**:
-    - Files frequently carry machine-generated, chaotic names: camera timestamps (`Screenshot 2026-05-20...`), random UUIDs/hashes, AI generator prefixes (`Gemini_Generated_Image_...`), or double-extensions.
-    - Inspect media visually or examine metadata/headers. Propose clean, descriptive **kebab-case** names (e.g. `synthwave-audio-visualizer-4k.png`) in the comparison table before execution.
+13. **Open the File — Names Lie**:
+    - Generic and machine names (`Untitled document`, numeric hashes, `IMG-…`, `Screenshot 2026-05-20…`, AI prefixes, double extensions like `.md.docx`) are not classifications. Open the file.
+    - Folder names lie: a tax form can sit inside `Policia`. Classify by content.
+    - Word files with no document text but images in `word/media/`: inspect the embedded image before naming.
+    - Inspect images visually (or via metadata/headers). Propose kebab-case names in the comparison table.
+    - Identity documents (national ID, passport, residence cards) go under an identity subcategory of Personal. Do not invent scenic names. Do not copy document numbers, MRZ lines, or addresses into the plan, chat, or logs.
 
-14. **Shell Character & Path Escaping Safeguards**:
+14. **Plan Coverage**:
+    - After a depth-1 listing, **every child folder and loose file must appear in the plan** (keep / merge / inspect / skip). A plan that omits a depth-1 child is invalid.
+    - Unsorted buckets (`Other`, `Otros`, `Random`, `Downloads`, `Cloud`, `Inbox`) are not already organized — they get their own pass.
+
+15. **Shell Character & Path Escaping Safeguards**:
     - Folders starting with `$` (like `$Temp`) expand to empty string inside double quotes in pwsh. Always use single quotes or escape as ```$Temp``.
     - Folders with brackets like `[📚] [Documentos]` are parsed as regex wildcards by PowerShell cmdlets. Always use `-LiteralPath`.
     - In Python, raw strings ending with a backslash like `r'path\'` cause a syntax error. Use forward slashes `'path/'` or double backslashes.
@@ -153,6 +169,7 @@ These presets serve as **battle-tested templates**. The agent should adapt names
 | **Media & Content** | `[📺] [Youtube-Media]` | `[📺] [Youtube]` | Video scripts, content outlines, audio transcripts |
 | **AI & Engineering** | `[🤖] [AI-Tools]` | `[🤖] [Herramientas-IA]` | LocalAI configs, MCP server manifests, custom skills |
 | **ASCII & Typography** | `[🎨] [Ascii]` | `[🎨] [Ascii]` | ASCII branding, text banners, terminal themes |
+| **Staging / Residual** | `[📦] [Other]` | `[📦] [Otros]` | Unclassified leftovers; empty or listed at close |
 
 ### Preset C: Visual & Creative Media Hub (`[🎨] [Media]`)
 
@@ -209,6 +226,7 @@ Before touching a single file or generating the execution script:
 4. **[Collision Prevention]**: Ensure destination naming logic appends `(1)`, `(2)` to strictly prevent any overwrite.
 5. **[Language Alignment]**: Detect prompt and system language; translate all category names accordingly.
 6. **[Transaction Journal]**: Ensure `.xyz-folder/manifest.json` will record every source-destination pair before any file operations.
+7. **[Plan gates]**: Depth-1 inventory table (name, file count, size) covering every child; git-repo list; SHA-256 table for anything marked delete. No taxonomy proposal until these exist.
 
 ---
 
@@ -218,12 +236,14 @@ When an AI assistant executes this skill:
 
 ### Step 1: Dynamic Discovery & Context Analysis
 - Detect the user's primary language from prompts and system locale.
-- Scan the directory structure (using shallow scans on large drives).
-- Identify file types, domains (e.g. code, documents, media, system utilities), and detect active Git repos.
+- Scan depth-1. For each child: file count and size. Do not skip unsorted buckets.
+- Identify file types and domains. List every `.git` (do not walk inside). Flag styled-vs-raw twins.
+- Produce the inventory table **before** any taxonomy.
 
 ### Step 2: Bespoke Taxonomy Synthesis & Alignment Debate
-- Select and combine relevant archetypes from the presets library.
-- Adapt category labels to the user's language and project terminology.
+- User-named principals become roots; presets fill subfolders. Add a staging bucket.
+- Select and combine relevant archetypes. Adapt labels to the user's language.
+- Map **every** depth-1 name. Hash table for proposed deletes.
 - Present a clear **"CÓMO ERA" vs "CÓMO QUEDARÍA"** visual comparison table.
 - **Wait for user feedback and confirmation** before moving any files.
 
@@ -231,10 +251,11 @@ When an AI assistant executes this skill:
 - **Same Drive**: Use atomic directory renames (`[System.IO.Directory]::Move` in PowerShell / `os.rename` in Python).
 - **Cross-Drive**: Synthesize `.xyz-folder/organize_session.py`, copy first, verify byte-by-byte, and only purge originals after 100% verification.
 - **Git Repos**: Move repo parent directories without touching repo folder names, `.git/`, branches, or commits.
-- **IDE Workspaces**: Update relative path links in `*.code-workspace` files.
+- **IDE Workspaces**: Update relative path links in `*.code-workspace` files. Retarget `.lnk` / `.url` whose targets moved.
 
 ### Step 4: Verification & Reporting
 - Verify Git repository status with `git status`.
+- Confirm zero omitted depth-1 children and an empty (or listed) staging bucket.
 - Present the final organized tree report to the user.
 
 ### Step 5: Rollback on Demand
