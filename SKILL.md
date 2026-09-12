@@ -77,6 +77,23 @@ Works out of the box on **Windows, Linux, and macOS**. Zero external dependencie
 >     - *Lírica y Música*: Song lyrics (`Letras_De_Canciones.docx`) $\rightarrow$ `[Multimedia]\[Musica] [🎵]` along with the master audio tracks.
 >     - *Administración de Sistemas*: OS command references, Linux setup manuals $\rightarrow$ `[Apuntes]\[Tecnicos] [💻]` (never in AI prompts or Gems).
 >     - *Contenedores Intencionales*: Empty folders with confirmed future intent (e.g. `[04]-[Borradores] [🧪]`) are preserved.
+> 17. **Multi-Phase & Sub-Phase Architecture with Visual Mermaid Flowcharts ("Arquitectura de Fases y Sub-Fases con Diagramas de Flujo Mermaid")**:
+>     - Complex mass migrations and database integrations must be partitioned into major Phases (`Fase 1`, `Fase 2`...) and granular, confirmable Sub-Phases (`Sub-Fase 1.1`, `Sub-Fase 1.2`...).
+>     - The agent **MUST ALWAYS render an interactive Mermaid flowchart (`flowchart LR` or `flowchart TD`)** mapping the raw source files/folders to the canonical destination hierarchy, illustrating data flows, deduplication volumes, and routing targets before execution.
+> 18. **Quality-First Cryptographic Deduplication ("Criterio de Calidad ante Duplicados Criptográficos")**:
+>     - When duplicate candidates are detected:
+>       - Verify **BOTH exact byte length and cryptographic hash (`hashlib.sha256()`)**.
+>       - **If 100% identical**: Preserve the existing canonical version that features the standardized, cleanest naming convention; completely omit the duplicate candidate from being copied or moved, avoiding clutter or artificial `(1)` collisions.
+>       - **If differing in size or hash**: Inspect internal data, metadata completeness (e.g. richer Calibre `.opf` tags), higher image resolution, or date modified to select and preserve the superior, most complete version.
+> 19. **Multi-Root Intelligent Routing for Drive Architectures ("Enrutamiento Multi-Raíz Inteligente")**:
+>     - When managing structured drives (e.g., `A:\`), avoid polluting the primary document container (`[📚] [Documentos]`) with massive executables, raw emulators, ROMs, or multi-gigabyte monolithic archives.
+>     - Route specialized payloads directly to dedicated root-level drive categories:
+>       - `A:\[🎵] [Music]`: Original artist productions, studio albums, stems, and multitracks (`[⚡] [XYZ-Productions]\`).
+>       - `A:\[🎮] [Games]`: Console emulators, system firmwares (`.PUP`, Switch `.keys`), GPU drivers.
+>       - `A:\[📱] [Android-APK]`: Standalone Android APK packages and mobile tools.
+>       - `A:\[🛠️] [Tools]`: Portable USB utilities, hardware flashing, diagnostics suites.
+>       - `A:\[📦] [Backups]`: Monolithic server archives (e.g., `external-drive.zip`).
+
 
 ---
 
