@@ -15,6 +15,9 @@ Cuando un agente de IA ejecuta la skill 'xyz-folder', DEBE:
    DEBE GENERAR O ADAPTAR este script dinámicamente inyectando las categorías exactas
    que encajen con el contexto del usuario.
 4. NUNCA forzar categorías vacías en el árbol visual si el usuario no tiene esos archivos.
+5. REGLA DE PALABRA ÚNICA: Las categorías raíz deben ser de una sola palabra ([Estudios], [Salud], [Desarrollo], [Documentos]).
+6. ANIDACIÓN DE MÓDULOS: Subdominios creativos (Ascii, Youtube) se anidan en [Apuntes] / [Notes];
+   recursos de soporte (Ebooks, Backups, Hardware) se anidan en [Otros] / [Other].
 
 ========================================================================================
 CHECKLIST DE VERIFICACIÓN OBLIGATORIA (LO PRIMERO DE TODO ANTES DE TOCAR UN BYTE):
@@ -24,7 +27,7 @@ CHECKLIST DE VERIFICACIÓN OBLIGATORIA (LO PRIMERO DE TODO ANTES DE TOCAR UN BYT
 [✓] 3. COLLISION PREVENTION: Generar sufijos automáticos (1), (2) para nunca sobreescribir.
 [✓] 4. LANGUAGE MATCH: Ajustar el idioma de las carpetas al del usuario (ES / EN).
 [✓] 5. DRY-RUN PREVIEW: Mostrar un desglose previo y esperar confirmación del usuario.
-[✓] 6. MANIFEST JOURNAL: Guardar .xyz-folder-manifest.json para permitir rollback inmediato.
+[✓] 6. MANIFEST JOURNAL: Guardar .xyz-folder/manifest.json para permitir rollback inmediato.
 ========================================================================================
 """
 
@@ -38,7 +41,23 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-MANIFEST_FILENAME = ".xyz-folder-manifest.json"
+MANIFEST_DIRNAME = ".xyz-folder"
+MANIFEST_FILENAME = "manifest.json"
+LEGACY_MANIFEST_FILENAME = ".xyz-folder-manifest.json"
+
+
+def resolve_manifest_path(target_dir: Path, for_write: bool = False) -> Path:
+    """Canonical journal is .xyz-folder/manifest.json; undo still reads the legacy root file."""
+    canonical = target_dir / MANIFEST_DIRNAME / MANIFEST_FILENAME
+    legacy = target_dir / LEGACY_MANIFEST_FILENAME
+    if for_write:
+        canonical.parent.mkdir(parents=True, exist_ok=True)
+        return canonical
+    if canonical.exists():
+        return canonical
+    if legacy.exists():
+        return legacy
+    return canonical
 
 # ======================================================================================
 # SECCIÓN 1: TAXONOMÍAS DE REFERENCIA (ADAPTABLES POR EL AGENTE)
@@ -51,43 +70,43 @@ MANIFEST_FILENAME = ".xyz-folder-manifest.json"
 
 TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     # Installers & Packages
-    ".exe": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".msi": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".appx": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".msix": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".pkg": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".dmg": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".deb": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".rpm": ("[📦] [Installers]", "[💻] [Desktop Apps]"),
-    ".apk": ("[📦] [Installers]", "[📱] [Mobile & Packages]"),
-    ".xapk": ("[📦] [Installers]", "[📱] [Mobile & Packages]"),
-    ".ipa": ("[📦] [Installers]", "[📱] [Mobile & Packages]"),
-    ".jar": ("[📦] [Installers]", "[📱] [Mobile & Packages]"),
+    ".exe": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".msi": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".appx": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".msix": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".pkg": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".dmg": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".deb": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".rpm": ("[📦] [Installers]", "[💻] [Desktop]"),
+    ".apk": ("[📦] [Installers]", "[📱] [Mobile]"),
+    ".xapk": ("[📦] [Installers]", "[📱] [Mobile]"),
+    ".ipa": ("[📦] [Installers]", "[📱] [Mobile]"),
+    ".jar": ("[📦] [Installers]", "[📱] [Mobile]"),
 
     # Documents & Books
-    ".pdf": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".epub": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".mobi": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".azw": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".azw3": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".cbr": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
-    ".cbz": ("[📄] [Documents]", "[📑] [PDFs & Books]"),
+    ".pdf": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".epub": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".mobi": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".azw": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".azw3": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".cbr": ("[📄] [Documents]", "[📑] [PDFs]"),
+    ".cbz": ("[📄] [Documents]", "[📑] [PDFs]"),
 
     # Office & Sheets
-    ".docx": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".doc": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".xlsx": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".xls": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".csv": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".pptx": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".ppt": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
-    ".odt": ("[📄] [Documents]", "[📊] [Office & Sheets]"),
+    ".docx": ("[📄] [Documents]", "[📊] [Office]"),
+    ".doc": ("[📄] [Documents]", "[📊] [Office]"),
+    ".xlsx": ("[📄] [Documents]", "[📊] [Office]"),
+    ".xls": ("[📄] [Documents]", "[📊] [Office]"),
+    ".csv": ("[📄] [Documents]", "[📊] [Office]"),
+    ".pptx": ("[📄] [Documents]", "[📊] [Office]"),
+    ".ppt": ("[📄] [Documents]", "[📊] [Office]"),
+    ".odt": ("[📄] [Documents]", "[📊] [Office]"),
 
     # Notes & Text
-    ".txt": ("[📄] [Documents]", "[📝] [Notes & Text]"),
-    ".md": ("[📄] [Documents]", "[📝] [Notes & Text]"),
-    ".log": ("[📄] [Documents]", "[📝] [Notes & Text]"),
-    ".rtf": ("[📄] [Documents]", "[📝] [Notes & Text]"),
+    ".txt": ("[📄] [Documents]", "[📝] [Notes]"),
+    ".md": ("[📄] [Documents]", "[📝] [Notes]"),
+    ".log": ("[📄] [Documents]", "[📝] [Notes]"),
+    ".rtf": ("[📄] [Documents]", "[📝] [Notes]"),
 
     # Media - Images
     ".png": ("[🎨] [Media]", "[🖼️] [Images]"),
@@ -119,33 +138,33 @@ TAXONOMY_EN: Dict[str, Tuple[str, str]] = {
     ".opus": ("[🎨] [Media]", "[🎵] [Audio]"),
 
     # Archives
-    ".zip": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".rar": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".7z": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".tar": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".gz": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".bz2": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".xz": ("[🗜️] [Archives]", "[📦] [ZIP & RAR]"),
-    ".iso": ("[🗜️] [Archives]", "[💿] [Disk Images & ISOs]"),
-    ".torrent": ("[🗜️] [Archives]", "[💿] [Disk Images & ISOs]"),
+    ".zip": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".rar": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".7z": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".tar": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".gz": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".bz2": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".xz": ("[🗜️] [Archives]", "[📦] [ZIP]"),
+    ".iso": ("[🗜️] [Archives]", "[💿] [ISOs]"),
+    ".torrent": ("[🗜️] [Archives]", "[💿] [ISOs]"),
 
-    # Development & AI
-    ".gguf": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
-    ".safetensors": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
-    ".onnx": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
-    ".pt": ("[💻] [Development & AI]", "[🤖] [Models & Weights]"),
-    ".py": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".js": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".ts": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".rs": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".go": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".html": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".css": ("[💻] [Development & AI]", "[🐙] [Repos & Code]"),
-    ".sh": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
-    ".ps1": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
-    ".json": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
-    ".yaml": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
-    ".yml": ("[💻] [Development & AI]", "[🛠️] [Scripts & Config]"),
+    # Development
+    ".gguf": ("[💻] [Development]", "[🤖] [Models]"),
+    ".safetensors": ("[💻] [Development]", "[🤖] [Models]"),
+    ".onnx": ("[💻] [Development]", "[🤖] [Models]"),
+    ".pt": ("[💻] [Development]", "[🤖] [Models]"),
+    ".py": ("[💻] [Development]", "[🐙] [Code]"),
+    ".js": ("[💻] [Development]", "[🐙] [Code]"),
+    ".ts": ("[💻] [Development]", "[🐙] [Code]"),
+    ".rs": ("[💻] [Development]", "[🐙] [Code]"),
+    ".go": ("[💻] [Development]", "[🐙] [Code]"),
+    ".html": ("[💻] [Development]", "[🐙] [Code]"),
+    ".css": ("[💻] [Development]", "[🐙] [Code]"),
+    ".sh": ("[💻] [Development]", "[🛠️] [Scripts]"),
+    ".ps1": ("[💻] [Development]", "[🛠️] [Scripts]"),
+    ".json": ("[💻] [Development]", "[🛠️] [Scripts]"),
+    ".yaml": ("[💻] [Development]", "[🛠️] [Scripts]"),
+    ".yml": ("[💻] [Development]", "[🛠️] [Scripts]"),
 }
 
 TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
@@ -158,55 +177,55 @@ TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
     ".dmg": ("[📦] [Instaladores]", "[💻] [Programas]"),
     ".deb": ("[📦] [Instaladores]", "[💻] [Programas]"),
     ".rpm": ("[📦] [Instaladores]", "[💻] [Programas]"),
-    ".apk": ("[📦] [Instaladores]", "[📱] [Android & APK]"),
-    ".xapk": ("[📦] [Instaladores]", "[📱] [Android & APK]"),
-    ".ipa": ("[📦] [Instaladores]", "[📱] [Android & APK]"),
-    ".jar": ("[📦] [Instaladores]", "[🎮] [Mods & Plugins]"),
+    ".apk": ("[📦] [Instaladores]", "[📱] [Android]"),
+    ".xapk": ("[📦] [Instaladores]", "[📱] [Android]"),
+    ".ipa": ("[📦] [Instaladores]", "[📱] [Android]"),
+    ".jar": ("[📦] [Instaladores]", "[🎮] [Mods]"),
 
     # Documentos y Libros
-    ".pdf": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".epub": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".mobi": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".azw": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".azw3": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".cbr": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
-    ".cbz": ("[📄] [Documentos]", "[📑] [PDFs & Libros]"),
+    ".pdf": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".epub": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".mobi": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".azw": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".azw3": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".cbr": ("[📄] [Documentos]", "[📑] [PDFs]"),
+    ".cbz": ("[📄] [Documentos]", "[📑] [PDFs]"),
 
     # Ofimática
-    ".docx": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".doc": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".xlsx": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".xls": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".csv": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".pptx": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".ppt": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".odt": ("[📄] [Documentos]", "[📊] [Ofimática]"),
-    ".eml": ("[📄] [Documentos]", "[📊] [Ofimática]"),
+    ".docx": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".doc": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".xlsx": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".xls": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".csv": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".pptx": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".ppt": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".odt": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
+    ".eml": ("[📄] [Documentos]", "[📊] [Ofimatica]"),
 
     # Notas y Texto
-    ".txt": ("[📄] [Documentos]", "[📝] [Notas & Textos]"),
-    ".md": ("[📄] [Documentos]", "[📝] [Notas & Textos]"),
-    ".log": ("[📄] [Documentos]", "[📝] [Notas & Textos]"),
-    ".rtf": ("[📄] [Documentos]", "[📝] [Notas & Textos]"),
+    ".txt": ("[📄] [Documentos]", "[📝] [Notas]"),
+    ".md": ("[📄] [Documentos]", "[📝] [Notas]"),
+    ".log": ("[📄] [Documentos]", "[📝] [Notas]"),
+    ".rtf": ("[📄] [Documentos]", "[📝] [Notas]"),
 
     # Multimedia - Imágenes
-    ".png": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".jpg": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".jpeg": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".webp": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".svg": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".gif": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".psd": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".ai": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
-    ".ico": ("[🎨] [Multimedia]", "[🖼️] [Imágenes]"),
+    ".png": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".jpg": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".jpeg": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".webp": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".svg": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".gif": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".psd": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".ai": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
+    ".ico": ("[🎨] [Multimedia]", "[🖼️] [Imagenes]"),
 
     # Multimedia - Vídeos
-    ".mp4": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
-    ".mkv": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
-    ".avi": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
-    ".mov": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
-    ".webm": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
-    ".srt": ("[🎨] [Multimedia]", "[🎬] [Vídeos]"),
+    ".mp4": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
+    ".mkv": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
+    ".avi": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
+    ".mov": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
+    ".webm": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
+    ".srt": ("[🎨] [Multimedia]", "[🎬] [Videos]"),
 
     # Multimedia - Audio
     ".mp3": ("[🎨] [Multimedia]", "[🎵] [Audio]"),
@@ -217,33 +236,33 @@ TAXONOMY_ES: Dict[str, Tuple[str, str]] = {
     ".ogg": ("[🎨] [Multimedia]", "[🎵] [Audio]"),
 
     # Comprimidos
-    ".zip": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".rar": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".7z": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".tar": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".gz": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".bz2": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".xz": ("[🗜️] [Comprimidos]", "[📦] [ZIP & RAR]"),
-    ".iso": ("[🗜️] [Comprimidos]", "[💿] [Imágenes ISO]"),
+    ".zip": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".rar": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".7z": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".tar": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".gz": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".bz2": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".xz": ("[🗜️] [Comprimidos]", "[📦] [ZIP]"),
+    ".iso": ("[🗜️] [Comprimidos]", "[💿] [ISOs]"),
     ".torrent": ("[🗜️] [Comprimidos]", "[💿] [Torrents]"),
 
-    # Desarrollo y AI
-    ".gguf": ("[💻] [Desarrollo & AI]", "[🤖] [Modelos & Pesos]"),
-    ".safetensors": ("[💻] [Desarrollo & AI]", "[🤖] [Modelos & Pesos]"),
-    ".py": ("[💻] [Desarrollo & AI]", "[🐙] [Código & Repos]"),
-    ".js": ("[💻] [Desarrollo & AI]", "[🐙] [Código & Repos]"),
-    ".ts": ("[💻] [Desarrollo & AI]", "[🐙] [Código & Repos]"),
-    ".html": ("[💻] [Desarrollo & AI]", "[🐙] [Código & Repos]"),
-    ".css": ("[💻] [Desarrollo & AI]", "[🐙] [Código & Repos]"),
-    ".sh": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
-    ".ps1": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
-    ".json": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
-    ".yaml": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
-    ".yml": ("[💻] [Desarrollo & AI]", "[🛠️] [Scripts & Config]"),
+    # Desarrollo
+    ".gguf": ("[💻] [Desarrollo]", "[🤖] [Modelos]"),
+    ".safetensors": ("[💻] [Desarrollo]", "[🤖] [Modelos]"),
+    ".py": ("[💻] [Desarrollo]", "[🐙] [Codigo]"),
+    ".js": ("[💻] [Desarrollo]", "[🐙] [Codigo]"),
+    ".ts": ("[💻] [Desarrollo]", "[🐙] [Codigo]"),
+    ".html": ("[💻] [Desarrollo]", "[🐙] [Codigo]"),
+    ".css": ("[💻] [Desarrollo]", "[🐙] [Codigo]"),
+    ".sh": ("[💻] [Desarrollo]", "[🛠️] [Scripts]"),
+    ".ps1": ("[💻] [Desarrollo]", "[🛠️] [Scripts]"),
+    ".json": ("[💻] [Desarrollo]", "[🛠️] [Scripts]"),
+    ".yaml": ("[💻] [Desarrollo]", "[🛠️] [Scripts]"),
+    ".yml": ("[💻] [Desarrollo]", "[🛠️] [Scripts]"),
 }
 
 # Archivos del sistema ignorados para no romper el entorno
-IGNORED_FILES = {"desktop.ini", "thumbs.db", ".ds_store", ".localized", MANIFEST_FILENAME}
+IGNORED_FILES = {"desktop.ini", "thumbs.db", ".ds_store", ".localized", LEGACY_MANIFEST_FILENAME}
 IGNORED_EXTENSIONS = {".tmp", ".crdownload", ".part", ".download", ".aria2"}
 
 
@@ -331,7 +350,7 @@ def execute_rollback(target_dir: Path, filter_pattern: Optional[str] = None) -> 
     Deshace las operaciones registradas en el manifest.
     Si se especifica filter_pattern, restaura únicamente los archivos que coincidan.
     """
-    manifest_path = target_dir / MANIFEST_FILENAME
+    manifest_path = resolve_manifest_path(target_dir, for_write=False)
     if not manifest_path.exists():
         print(f"Error: No se encontró el registro de transacciones en: {manifest_path}")
         sys.exit(1)
@@ -526,15 +545,16 @@ def organize_directory(
         except Exception as e:
             print(f"  [!] Fallo al mover {src.name}: {e}")
 
-    # Guardar manifest transaccional
-    manifest_path = target_dir / MANIFEST_FILENAME
+    # Guardar manifest transaccional (canonical path; merge legacy if present)
     existing_manifest = {"timestamp": time.time(), "moves": []}
-    if manifest_path.exists():
+    read_path = resolve_manifest_path(target_dir, for_write=False)
+    if read_path.exists():
         try:
-            with open(manifest_path, "r", encoding="utf-8") as f:
+            with open(read_path, "r", encoding="utf-8") as f:
                 existing_manifest = json.load(f)
         except Exception:
             pass
+    manifest_path = resolve_manifest_path(target_dir, for_write=True)
 
     existing_manifest["moves"].extend(manifest_entries)
     existing_manifest["last_updated"] = time.time()

@@ -1,200 +1,275 @@
 ---
 name: xyz-folder
 description: >
-  Autonomous protocol and CLI engine to dynamically organize, categorize, and normalize folders and drives
-  into an aesthetic double-bracket and emoji taxonomy ([emoji] [Category]/[emoji] [Subcategory]/).
-  Features zero-data-loss verification, collision prevention, transaction journaling, full rollback/undo,
-  interactive pre-flight alignment, and language-adaptive folder structures.
+  Autonomous protocol and universal template framework for AI agents to dynamically organize, categorize,
+  and normalize folders and drives into an aesthetic taxonomy with single-word root categories, module nesting
+  (Ascii/Youtube into Apuntes; Ebooks/Backups/Hardware into Otros), gravity-based numeric ordering ([00]-[Nombre] [Emoji]),
+  syntax format catalogs, dynamic self-adaptation, and anti-repetition icon rules.
+  Features zero-data-loss verification, transaction journaling, full rollback/undo, and strict preservation of Git repos and game saves.
   Use when the user asks to "organize downloads", "clean my folders", "sort files", "organize drive",
   "ordenar descargas", "clasificar archivos con emojis", "deshacer ordenamiento", or runs /xyz-folder.
 ---
 
-# xyz-folder — Aesthetic Directory & Drive Organizer
+# xyz-folder — Universal Aesthetic Directory & Drive Organizer
 
-A universal agent skill and standalone CLI engine that cleans, organizes, and classifies chaotic directories (Downloads, Desktop, external storage drives, project folders) into an ultra-clean **double-bracket and emoji taxonomy**:
+An open, non-deterministic cognitive protocol and template framework for AI agents to clean, organize, and classify chaotic directories (Downloads, Desktop, external storage drives, code workspaces, media hubs) into an ultra-clean **customizable taxonomy with gravity-based ordering and visual iconography**:
 
 ```text
 Target Directory/
-├── [📦] [Installers]/
-│   ├── [💻] [Desktop Apps]/
-│   └── [📱] [Mobile & Packages]/
-├── [📄] [Documents]/
-│   ├── [📑] [PDFs & Books]/
-│   └── [📊] [Office & Sheets]/
-├── [🎨] [Media]/
-│   ├── [🖼️] [Images]/
-│   ├── [🎬] [Videos]/
-│   └── [🎵] [Audio]/
-├── [🗜️] [Archives]/
-│   ├── [📦] [ZIP & RAR]/
-│   └── [💿] [Disk Images & ISOs]/
-└── [💻] [Development & AI]/
-    ├── [🤖] [Models & Weights]/
-    └── [🐙] [Repos & Code]/
+├── [01]-[Identidad] [🪪]/
+│   ├── [01]-[Titular] [👤]/
+│   └── [02]-[Familia] [👩]/
+├── [02]-[Pension] [🏛️]/
+│   ├── [01]-[Orfandad] [📜]/
+│   └── [02]-[Formularios] [📋]/
+├── [03]-[Discapacidad] [📑]/
+├── [04]-[Salud] [🏥]/
+├── [05]-[Cognitivo] [🧠]/
+├── [06]-[Estudios] [🎓]/
+├── [07]-[Curriculum] [📄]/
+├── [08]-[Trabajo] [💼]/
+├── [09]-[Facturas] [🧾]/
+├── [10]-[Legal] [👮]/
+├── [11]-[AI] [🤖]/
+├── [12]-[Apuntes] [📝]/
+│   ├── [01]-[Ascii] [🎨]/
+│   └── [02]-[Youtube] [📺]/
+└── [13]-[Otros] [📂]/
+    ├── [01]-[Ebooks] [📖]/
+    ├── [02]-[Backups] [📦]/
+    └── [03]-[Hardware] [📟]/
 ```
 
 Works out of the box on **Windows, Linux, and macOS**. Zero external dependencies (Python 3 standard library only).
 
 ---
 
-## 1. Core Principles & Guardrails
+## 1. Core Philosophy: Dynamic Self-Adaptation & Evolutionary Memory
+
+> [!IMPORTANT]
+> **Dynamic Self-Adaptation Principle ("Principio de Auto-Adaptación Continua")**:
+> `xyz-folder` is **NOT a frozen script or rigid schema**. It is a **living cognitive framework**.
+> The AI agent **MUST continuously adapt and enrich this skill** whenever the user introduces:
+> 1. A new naming requirement, syntax style, or numeric convention.
+> 2. Specific domain rules, nesting patterns, or priority hierarchies.
+> 3. Additional emojis, ASCII symbols, or localization languages.
+> The agent **must proactively persist new requirements into the skill documentation and scripts**, ensuring evolutionary memory across sessions.
+>
+> **Adaptive Heuristics**:
+> 1. Analyze the target directory contents, volume, and file signatures.
+> 2. Detect the user's language and translate all category labels naturally.
+> 3. **Prompt the user to select their preferred Naming Syntax Format** before moving any files.
+> 4. If the user names principal categories, those names **are the root containers**. Presets fill **subfolders** under them.
+> 5. **Single-Word Root Categories**: Root containers strictly prefer a single, concise word (`[Estudios]`, `[Salud]`, `[Pension]`, `[Identidad]`, `[Trabajo]`). Avoid compound or hyphenated root names.
+> 6. **Module Nesting Architecture**: Group specific creative notes (`Ascii`, `Youtube`) under `[Apuntes]` / `[Notes]`, and secondary or auxiliary stores (`Ebooks`, `Backups`, `Hardware`) under `[Otros]` / `[Other]` rather than spawning fragmented root containers.
+> 7. **Anti-Repetition Rule**: Never repeat the exact same emoji or ASCII icon within the same folder level.
+> 8. **Semantic Equivalence Rule ("Random" = "Otros")**: `Random` and `Otros` are conceptually identical. Always maintain and prefer `[Otros]`. Never maintain a separate `Random` root; route and distribute all unsorted or random files into their proper domains, and auxiliary miscellany into `[Otros]`.
+> 9. **Terminal Gravity Rule ("[Otros] is ALWAYS the Last Number")**: `[Otros]` acts as the ultimate residual storage sink. By strict rule, **`[Otros]` MUST ALWAYS occupy the highest / final index of the numeric hierarchy** (e.g. `[14]-[Otros] [📂]` or `[99]-[Otros] [📂]`). Specific domain categories (like `Multimedia`) must precede it.
+> 10. **Mandatory Visual Comparison Table ("Tabla Visual CÓMO ERA vs CÓMO QUEDARÍA")**: Before executing any disk modifications, file moves, or renames, the agent **MUST ALWAYS render an interactive Markdown comparison table** detailing `Ubicación Actual (CÓMO ERA)`, `Destino Canónico (CÓMO QUEDARÍA)`, and `Justificación y Función`. Execution requires explicit user confirmation via `ask_question`.
+> 11. **Exhaustive File-by-File Content Inspection ("Protocolo de Auditoría Anatómica 1 a 1")**: Never assume or classify a file solely by its filename or extension. The agent MUST open and parse the internal data streams (PyMuPDF/`fitz` for PDFs, `zipfile` + `xml.etree.ElementTree` for DOCX/ODT, native text reader for markdown/yaml/json/txt) to extract actual headers, titles, and paragraphs.
+> 12. **Strict Cryptographic Deduplication & Recycle Bin Safety ("Regla de Purgado Criptográfico en Papelera")**: A file is ONLY classified as a duplicate if BOTH its exact byte length and full cryptographic hash (SHA-256) match 100% with the canonical original (`sz_orig == sz_dupl and h_orig == h_dupl`). Permanent destructive deletions are strictly prohibited for duplicates; all purged duplicates or corrupt files MUST be moved to the OS Recycle Bin (`[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile(..., 'SendToRecycleBin')` on Windows) to guarantee complete reversibility.
+> 13. **Corrupt & Zero-Byte Artifact Elimination**: Detect and purge unrecoverable 0-byte files resulting from interrupted network downloads or crash dumps (e.g. `tmp*.mp4`), verifying size = 0 and empty SHA-256 hash `e3b0c442...` before recycling.
+> 14. **Canonical Chronological Standardization ("Estandarización Mensual Canónica")**: In periodic or monthly series (e.g., invoices, monthly reports), enforce uniform canonical naming `[00]-[Mes] [Emoji]` (e.g. `[02]-[Febrero] [❄️]`, `[06]-[Junio] [☀️]`, `[11]-[Originales] [📄]`). Prohibit hybrid schemes (`06-2026` mixed with `[02]-[Febrero]`). If parallel split folders exist for the same period (e.g. PDFs in one folder and HTMLs in another), merge them into a single canonical month folder.
+> 15. **Subdirectory Key Promotion Rule ("Regla de Promoción de Subdirectorios Clave")**: When high-value functional domains (such as `Chats` or `Credenciales`) are buried inside general parent folders (like `Notas`), promote them to canonical top-level subdirectories under their parent domain (`[03]-[Chats] [💬]`, `[04]-[Credenciales] [🔐]`).
+> 16. **Semantic Special Asset Routing ("Rutas Semánticas de Activos Especiales")**:
+>     - *Bóvedas y Credenciales*: Passwords, PGP keys, 2FA codes, proxy lists (`HTTPS/SOCKS5`) $\rightarrow$ `[Personal]\[Credenciales] [🔐]`.
+>     - *Guiones y Producción Audiovisual*: Video scripts, research notes for videos $\rightarrow$ `[Apuntes]\[Youtube] [📺]`.
+>     - *Lírica y Música*: Song lyrics (`Letras_De_Canciones.docx`) $\rightarrow$ `[Multimedia]\[Musica] [🎵]` along with the master audio tracks.
+>     - *Administración de Sistemas*: OS command references, Linux setup manuals $\rightarrow$ `[Apuntes]\[Tecnicos] [💻]` (never in AI prompts or Gems).
+>     - *Contenedores Intencionales*: Empty folders with confirmed future intent (e.g. `[04]-[Borradores] [🧪]`) are preserved.
+
+---
+
+## 2. Naming Syntax Formats Catalog (Catálogo de Nomenclaturas)
+
+Before performing any directory organization or file movement, the agent **MUST present this catalog to the user and request which naming format to apply**:
+
+| Format ID | Syntax Pattern | Example Root Directory | Best Suited For |
+| :--- | :--- | :--- | :--- |
+| **Format A** *(Classic Double-Bracket)* | `[emoji] [Nombre]` | `[🪪] [Identidad]` | Visual aesthetic layout, high contrast, clean icon-first reading. |
+| **Format B** *(Pure Numeric Gravity)* | `[00]-[Nombre]` | `[01]-[Identidad]` | Strict deterministic file-manager sorting, minimal, no emojis. |
+| **Format C** *(Gravity + Trailing Emoji)* | `[00]-[Nombre] [Emoji]` | `[01]-[Personal] [👤]` | **(Recommended)** Combines OS file sorting with visual clarity. |
+| **Format D** *(Emoji-First + Numeric)* | `[Emoji]-[Nombre] [00]` | `[🪪]-[Identidad] [01]` | Visual categorization with trailing index tags. |
+| **Format E** *(Retro ASCII Icon)* | `[00]-[Nombre] [ASCII]` | `[01]-[Personal] [*]` | Terminal-focused environments, legacy shells, ASCII aesthetics. |
+
+---
+
+## 3. Gravity & Priority System (`[00]` Numeric Sorting Hierarchy)
+
+When using numeric formatting (`[00]-[Nombre] ...`), indices are assigned according to **critical gravity, survival priority, and functional dependence** rather than arbitrary alphabetical order:
+
+| Numeric Band | Priority Tier | Domain Scope | Representative Categories |
+| :--- | :--- | :--- | :--- |
+| **`[00]` - `[09]`** | **Tier 1: Vital Core & Legal Identity** | Non-transferable legal existence, survival benefits, official state resolutions. | `[01]-[Identidad] [🪪]`, `[02]-[Pension] [🏛️]`, `[03]-[Discapacidad] [📑]` |
+| **`[10]` - `[19]`** | **Tier 2: Health, Biology & Mind** | Medical diagnostics, psychiatric records, cognitive architectures, therapy. | `[04]-[Salud] [🏥]`, `[05]-[Cognitivo] [🧠]` |
+| **`[20]` - `[29]`** | **Tier 3: Education, Career & Finance** | Academic institutes, professional certifications, employment contracts, bills. | `[06]-[Estudios] [🎓]`, `[07]-[Curriculum] [📄]`, `[08]-[Trabajo] [💼]`, `[09]-[Facturas] [🧾]` |
+| **`[30]` - `[39]`** | **Tier 4: Legal Defense & Enforcement** | Police reports, incident evidence logs, court complaints, vehicle registries. | `[10]-[Legal] [👮]` |
+| **`[40]` - `[49]`** | **Tier 5: Cognition, AI & Knowledge** | Local AI models, agent skills, prompts, study notes, video scripts, ASCII art. | `[11]-[AI] [🤖]`, `[12]-[Apuntes] [📝]` *(anida Ascii y Youtube)* |
+| **`[50]` - `[99]`** | **Tier 6: Storage, Media & Terminal Vault** | Media suites, Calibre ebook libraries, historical backups, hardware specs, terminal residual sink. | `[13]-[Multimedia] [🎬]` *(anida Fotos, Musica, Videos, Graficos)*, `[14]-[Otros] [📂]` *(anida Ebooks, Backups y Hardware; **SIEMPRE el último número**)* |
+
+---
+
+## 4. Giant Catalog of Emojis and ASCII Icons (Catálogo Universal)
+
+> [!CAUTION]
+> **Anti-Repetition Rule ("Regla de Unicidad Visual en el Mismo Directorio")**:
+> **NEVER repeat the same emoji or ASCII icon across sibling folders in the same directory level.**
+> If `[01]-[Identidad]` uses `[🪪]`, no sibling folder under the same parent may use `[🪪]`. Subfolders must choose a distinct semantic icon (e.g. `[👤]`, `[👩]`, `[👨]`).
+
+### 4.1 Emojis Master Table
+
+| Icon | Unicode Name | Category / Context | Recommended Folder Names | When to Avoid |
+| :---: | :--- | :--- | :--- | :--- |
+| `🪪` | Identification Card | Official identity, national IDs, passports, driver licenses | `[Identidad]`, `[DNI]`, `[ID-Vault]` | General notes, receipts |
+| `👤` | Bust in Silhouette | Personal documents, primary user, single identity | `[Personal]`, `[Titular]`, `[Perfil]` | Companies, teams |
+| `👩` | Woman | Family member, maternal records, female profile | `[Familiar]`, `[Madre]`, `[Titular]` | Generic tech folders |
+| `🏛️` | Classical Building | Government bodies, Social Security, INSS, public pensions | `[Pension]`, `[INSS]`, `[Administracion]` | Private businesses |
+| `📑` | Bookmark Tabs | Official resolutions, disability degrees, administrative files | `[Discapacidad]`, `[Resoluciones]` | Music or media |
+| `🏥` | Hospital | Medical records, clinical summaries, hospital discharges | `[Salud]`, `[Hospital]`, `[Clinica]` | General sports |
+| `🩺` | Stethoscope | Medical diagnostics, physical exams, imaging, tests | `[Diagnosticos]`, `[Resonancia]`, `[Pruebas]` | Office paperwork |
+| `💊` | Pill | Medication, psychiatry, pharmacology, prescriptions | `[Psiquiatria]`, `[Farmacia]`, `[Tratamientos]` | Hardware, software |
+| `🧠` | Brain | Neurodivergence, psychology, cognitive OS, AutismOS | `[Cognitivo]`, `[Psicologia]`, `[Neurologia]` | Routine finances |
+| `🧩` | Puzzle Piece | Cognitive frameworks, modules, extensions, integrations | `[Marco]`, `[Consciencia]`, `[Extensiones]` | Random unsorted files |
+| `🎓` | Graduation Cap | Academic institutions, universities, institutes, courses | `[Estudios]`, `[IOC]`, `[Universidad]` | Work contracts |
+| `📄` | Page Facing Up | Curriculum vitae, official forms, loose documents | `[Curriculum]`, `[CV]`, `[Documentos]` | Media audio/video |
+| `💼` | Briefcase | Active employment, clients, enterprise projects, labor | `[Trabajo]`, `[Empleo]`, `[Proyectos]` | Academic homework |
+| `🧾` | Receipt | Invoices, receipts, tax returns, accounting spreadsheets | `[Facturas]`, `[Recibos]`, `[Contabilidad]` | Identity cards |
+| `👮` | Police Officer | Police complaints, formal denunciations, court/notary | `[Legal]`, `[Policia]`, `[Mossos]` | Normal civil notes |
+| `🚨` | Rotating Light | Urgent reports, incident logs, emergency evidence | `[Denuncia]`, `[Urgente]`, `[Incidentes]` | Routine backups |
+| `🚗` | Automobile | Vehicle records, DGT registration, driver licenses | `[DGT]`, `[Vehiculos]`, `[Trafico]` | Non-vehicle taxes |
+| `🤖` | Robot Face | AI assistants, MCP servers, LLM prompts, agent skills | `[AI]`, `[Modelos]`, `[Agentes]` | Standard web scripts |
+| `💎` | Gem Stone | Master prompts, custom GPTs, Gemini Gems, gold configs | `[Gems]`, `[Prompts-Maestros]` | Generic text files |
+| `⚡` | High Voltage | Energy, electricity invoices, high-speed automations | `[Electricidad]`, `[Suministros]`, `[Scripts]` | Physical paper files |
+| `📝` | Memo / Pencil | Study notes, general memos, drafts, research summaries | `[Apuntes]`, `[Notas]`, `[Borradores]` | Identity archives |
+| `🎨` | Artist Palette | ASCII art, graphic design, branding, vector illustrations | `[Ascii]`, `[Diseno]`, `[Creativo]` | Spreadsheets |
+| `📺` | Television | YouTube scripts, video production, video assets | `[Youtube]`, `[Media-Content]` | Audio-only tracks |
+| `🎬` | Clapper Board | Video studio, video captures, rendered movies | `[Videos]`, `[Capturas]`, `[Animacion]` | Static images |
+| `🖼️` | Framed Picture | High-resolution photography, wallpapers, visual assets | `[Fotos]`, `[Imagenes]`, `[Fondos]` | Code or text logs |
+| `🎵` | Musical Note | Master music, discographies, soundtracks | `[Musica]`, `[Audio]`, `[Soundtracks]` | Voice notes/podcasts |
+| `🎙️` | Studio Microphone | Voice recordings, podcast master audio, audio notes | `[Audios]`, `[Grabaciones]`, `[Entrevistas]` | Written books |
+| `📖` | Open Book | Calibre library, EPUBs, eBooks, literature | `[Ebooks]`, `[Biblioteca]`, `[Lectura]` | Short cheat sheets |
+| `📘` | Blue Book | Dedicated book, technical manuals, monographs | `[AutismOS]`, `[Monografias]`, `[Manuales]` | Commercial invoices |
+| `📦` | Package / Box | Archives, backups, Google Takeout, compressed vaults | `[Backups]`, `[Exports]`, `[Paquetes]` | Single text notes |
+| `🗜️` | Clamp / Compress | ZIP, RAR, 7Z, tarballs, compressed data | `[Comprimidos]`, `[Archivos-ZIP]` | Raw loose photos |
+| `📟` | Pager / Device | Microcontrollers, ESP32, Cardputer, hardware datasheets | `[Hardware]`, `[Cyberdeck]`, `[Dispositivos]` | Web applications |
+| `📱` | Mobile Phone | Android APKs, mobile apps, mobile firmware | `[Android]`, `[Mobile]`, `[M5-CYD]` | Desktop x86 binaries |
+| `💻` | Laptop Computer | General software, coding repos, desktop applications | `[Programas]`, `[Desarrollo]`, `[SMX]` | Physical hardware |
+| `💾` | Floppy Disk | Disk images, ROMs, USB flashing tools, firmwares | `[Flasheo]`, `[ISOs]`, `[Imagenes-Disco]` | Cloud bookmarks |
+| `💿` | Optical Disc | ISO files, game discs, software distributions | `[ISOs]`, `[CD-ROM]`, `[Instaladores]` | Small scripts |
+| `🔑` | Key | Passwords, credential exports, Bitwarden backups, SSH | `[Claves]`, `[Seguridad]`, `[Credenciales]` | Public documents |
+| `🌐` | Globe | Websites, web extensions, portals, domains | `[Webs]`, `[Portales]`, `[Internet]` | Local offline files |
+| `🛠️` | Hammer and Wrench | System utilities, dev tools, diagnostic scripts | `[Herramientas]`, `[Tools]`, `[Scripts]` | Pure text essays |
+| `🔧` | Wrench | System rescue, disk recovery, repair batch scripts | `[Rescate]`, `[Mantenimiento]` | Media players |
+| `🔬` | Microscope | Forensic investigation, scientific analysis, lab tests | `[Investigacion]`, `[Ciencia]`, `[Forense]` | Administrative forms |
+| `🎮` | Video Game | Game mods, game saves, emulation profiles | `[Mods]`, `[Juegos]`, `[Emulacion]` | Serious tax files |
+| `🏢` | Office Building | Community of owners, building administration, real estate | `[Comunidad]`, `[Inmuebles]`, `[Edificio]` | Personal healthcare |
+| `🛒` | Shopping Cart | Hardware purchases, gear receipts, purchase warranties | `[Compras]`, `[Equipamiento]`, `[Garantias]` | Doctor summaries |
+| `🤝` | Handshake | Social agreements, labor insertion, partnerships | `[SIL]`, `[Convenios]`, `[Asociaciones]` | Unilateral complaints|
+| `📂` | File Folder | Master storage, residual archives, miscellaneous vault | `[Otros]`, `[Almacen]`, `[Miscelanea]` | Specific identity IDs|
+
+### 4.2 ASCII Icons Master Table (Retro / Terminal Mode)
+
+| ASCII Tag | Name | Aesthetic Context | Example Usage |
+| :---: | :--- | :--- | :--- |
+| `[*]` | Asterisk / Star | Core identity, primary focal entity, flagship module | `[01]-[Personal] [*]` |
+| `[#]` | Hash / Root | System infrastructure, root admin, base configs | `[00]-[Sistema] [#]` |
+| `[!]` | Exclamation | Legal urgency, critical warnings, active police actions | `[10]-[Legal] [!]` |
+| `[+]` | Plus / Health | Healthcare, medical reports, pharmacology, additions | `[04]-[Salud] [+]` |
+| `[~]` | Tilde / Wave | Audio, music, voice frequencies, fluctuating signals | `[05]-[Audio] [~]` |
+| `[$]` | Dollar / Currency | Financial invoices, accounting, taxes, bank records | `[09]-[Facturas] [$]` |
+| `[@]` | At-Sign | Communications, email archives, identity profiles | `[01]-[Identidad] [@]` |
+| `[>]` | Pointer / Run | Executables, deployment scripts, active pipelines | `[11]-[Scripts] [>]` |
+| `[o]` | Ring / Node | General subfolder, standard container, document bundle | `[02]-[Notas] [o]` |
+| `[x]` | Cross / Archive | Backups, historical snapshots, obsolete records | `[13]-[Backups] [x]` |
+| `[//]` | Double Slash | Coding repositories, dev workspaces, source code | `[08]-[Codigo] [//]` |
+| `[::]` | Scope / Namespace | Educational modules, curriculum, academic courses | `[06]-[Estudios] [::]` |
+| `[<>]` | Tag / Markup | Web development, templates, HTML/JSON assets | `[08]-[Webs] [<>]` |
+
+---
+
+## 5. Universal Principles & Safety Guardrails
 
 1. **Interactive Alignment & Debate First**:
-   - The agent **MUST NOT** blindly move files without confirmation.
-   - Always scan the target directory, analyze file signatures, detect the user's language, and propose a tailored plan.
+   - The agent **MUST NEVER** blindly move files without confirmation.
+   - Scan target directory, analyze signatures, detect user language, and propose a tailored plan.
    - Debate edge cases, exclusions, and custom preferences with the user before touching disk.
 
-2. **Copy-First & Post-Verification Source Purge**:
-   - **Always copy first**: The original files remain 100% intact as a live safety backup during the entire transfer and organization process. Never cut/move directly without a verified replica.
-   - **Verification before cleanup**: The agent writes files to the new categorized structure and verifies 100% byte integrity against the source.
-   - **Source Purge upon 100% Verification**: Once the backup is 100% transferred, organized, and verified byte-by-byte with zero errors, the agent proceeds to eliminate the original files (moving them to the OS Recycle Bin / Trash) to release duplicate disk space and finalize the organization.
-   - **Strict Abort on Error**: If even a single file fails verification, the source is left completely untouched.
-   - **Collision prevention**: If a file with the same name exists at destination, it is versioned as `filename (1).ext` — never overwritten.
+2. **Pre-Flight Syntax Alignment**:
+   - Always present the **Naming Syntax Formats Catalog** and obtain the user's explicit choice (e.g. Format C: `[00]-[Nombre] [Emoji]`).
 
-3. **Transaction Journaling & Full Rollback**:
-   - Every operation writes a `.xyz-folder-manifest.json` transaction log.
-   - At any time, the user can cancel progress, revert the entire operation back to original locations (`--undo`), or selectively restore individual files or subfolders (`--restore-filter`).
+3. **One-by-One with Full Tree Protocol ("Uno a Uno con Tree Exhaustivo")**:
+   - Never perform blind mass-renaming.
+   - Proceed strictly **folder by folder ("uno a uno")**.
+   - Execute a granular `tree` inspection displaying nested subfolders and files before proposing changes.
+   - Always present a clear **"BEFORE vs AFTER" ("CÓMO ERA vs CÓMO QUEDARÍA")** visual comparison.
+   - Require explicit user authorization (green light) before touching disk on that specific folder.
 
-4. **Safety Backups for Heavy Migrations**:
-   - Before running massive file copies or cross-drive tools like `robocopy` / `rsync`, verify destination space, assess disk health (preventing HDD head thrashing), and establish safety backups/snapshots.
+4. **Single-Word Category Rule ("Regla de Palabra Única en Categorías Principales")**:
+   - Principal / root category containers MUST strictly prefer a single, concise word inside the brackets: `[Nombre]` (e.g., `[Estudios]`, `[Salud]`, `[Pension]`, `[Identidad]`, `[Trabajo]`, `[Facturas]`, `[Legal]`, `[Apuntes]`, `[Otros]`).
+   - Avoid compound or hyphenated category names at the root level (`[Estudios-IOC]`, `[Informes-Medicos]`).
+   - Subcategories also prioritize single words, allowing compound names only when technical precision demands it.
 
-5. **Dynamic Language & Taxonomy Localization**:
-   - Folder names and emojis adapt to the user's natural language:
-     - Spanish: `[🎨] [Multimedia]/[🖼️] [Imágenes]`, `[📄] [Documentos]/[📑] [PDFs & Libros]`
-     - English: `[🎨] [Media]/[🖼️] [Images]`, `[📄] [Documents]/[📑] [PDFs & Books]`
-   - Categories adapt to the actual contents found (e.g., 3D models, audio stems, game mods, research datasets).
+5. **Module Nesting Architecture ("Arquitectura de Anidación de Módulos Específicos")**:
+   - **Notes & Content (`[📝] [Apuntes]` / `[Notes]`)**: Anida obligatoriamente `[Ascii]` y `[Youtube]` como subdirectorios.
+   - **Storage Vaults (`[📂] [Otros]` / `[Other]`)**: Anida obligatoriamente `[Ebooks]` (Calibre), `[Backups]` y `[Hardware]`.
 
-6. **Custom Script Synthesis in `.xyz-folder/`**:
-   - The bundled `scripts/organize.py` is a **pedagogical baseline reference**, NOT a static rigid executable.
-   - For every organization task, the agent **MUST synthesize a dedicated custom script** at `.xyz-folder/organize_session.py` tailored specifically to the files, extensions, exclusions, and language discovered in that session.
-   - The script is self-documenting: includes an architectural header summarizing the debate, the exact taxonomy map, pre-flight safety checks, and the OS Recycle Bin integration.
+6. **Granular Multi-Phase Phasing with Step-by-Step Checkpoints**:
+   - Complex reorganizations are partitioned into sequential, verified phases (Purge Duplicates $\rightarrow$ De-nest Bridge Folders $\rightarrow$ Provision Skeleton $\rightarrow$ Domain Migrations $\rightarrow$ File Deduplication $\rightarrow$ Zero-Orphan Audit).
+   - Each phase is confirmed individually with the user before proceeding.
+
+7. **Copy-First & Post-Verification Source Purge**:
+   - Cross-drive moves use Staged Copy-First with byte-by-byte SHA-256 verification before purging source.
+   - Same-drive moves are atomic pointer updates (`[System.IO.Directory]::Move` / `os.rename`).
+   - Destination collisions append `(1)`, `(2)` — never overwrite.
+   - File duplicate deletions strictly require SHA-256 hash proof recorded in the plan.
+
+8. **Git Repository Invariance**:
+   - Never modify `.git/`, branches, commits, or repo root names. Style only parent containers.
+
+9. **Open the File — Names Lie**:
+   - Classify by inspecting contents, headers, text, or visual images, not deceptive raw filenames (`Untitled document`, camera hashes).
+
+10. **Transaction Journaling & Full Rollback**:
+    - Every action records source $\rightarrow$ destination in `.xyz-folder/manifest.json`.
+    - Run `python3 scripts/organize.py --target "/path" --undo` for instant full rollback.
+
+11. **Anatomical 1-to-1 Content Inspection**:
+    - Never assume contents from names. Open real streams: PyMuPDF (`fitz`) for PDF text layers, `zipfile` + `xml.etree.ElementTree` for DOCX/ODT word documents, native reader for TXT/MD/JSON/YAML.
+
+12. **Strict Cryptographic Deduplication & OS Recycle Bin**:
+    - Deduplication strictly requires a 100% match in BOTH byte length and cryptographic hash (`hashlib.sha256()`).
+    - Destructive permanent unlinks (`os.remove` / `rm -rf`) are strictly prohibited for duplicate files.
+    - All recycled files MUST be routed to the OS Recycle Bin (`[Microsoft.VisualBasic.FileIO.FileSystem]::DeleteFile(..., 'SendToRecycleBin')` on Windows) to allow instantaneous human recovery.
+
+13. **Chronological Series Normalization**:
+    - In periodic monthly series (accounting, bills), enforce uniform format: `[00]-[Mes] [Emoji]` (`[02]-[Febrero] [❄️]`, `[06]-[Junio] [☀️]`, `[11]-[Originales] [📄]`).
+    - Merge split folders of the same month (e.g. PDFs in one folder, HTMLs in another) into one single canonical month container.
+
+14. **Subdirectory Key Promotion & Special Asset Routing**:
+    - High-value domains buried inside generic folders (e.g. `Chats` or `Credenciales` inside `Notas`) MUST be promoted to first-level canonical subdirectories (`[03]-[Chats] [💬]`, `[04]-[Credenciales] [🔐]`).
+    - Consolidate credentials in `[Credenciales]`, video scripts in `[Youtube]`, song lyrics in `[Musica]`, and OS system administration manuals in `[Tecnicos]`. Preserve intentionally empty containers (e.g. `[Borradores]`).
 
 ---
 
-## 2. Mandatory Pre-Flight Verification Checklist (Check First of All)
+## 6. Mandatory Pre-Flight Verification Checklist
 
 Before touching a single file or generating the execution script:
-1. **[Disk Space]**: Verify destination capacity with `shutil.disk_usage()`. Ensure available free space exceeds the total batch size by at least 500 MB.
-2. **[File Locks]**: Confirm target files are not in use or held by running processes (e.g. IDEs, media players, torrent clients).
-3. **[Permissions & Attributes]**: Verify read/write permissions and handle read-only attributes safely.
-4. **[Collision Prevention]**: Ensure destination naming logic appends `(1)`, `(2)` to strictly prevent any overwrite.
-5. **[Language Alignment]**: Match all directory labels to the user's natural language (`[🎨] [Multimedia]` vs `[🎨] [Media]`).
-6. **[Transaction Journal]**: Ensure `.xyz-folder/manifest.json` will record every source-destination pair before any file operations.
+1. **[Disk Space]**: Verify capacity (`shutil.disk_usage()`).
+2. **[Syntax Format Chosen]**: Confirm user preference from the Naming Syntax Catalog (e.g. `[00]-[Nombre] [Emoji]`).
+3. **[Single-Word Root Compliance]**: Verify root categories use exactly one word.
+4. **[Module Nesting Compliance]**: Verify Ascii/Youtube $\subset$ Apuntes; Ebooks/Backups/Hardware $\subset$ Otros.
+5. **[Anti-Repetition Audit]**: Verify zero duplicate emojis or ASCII icons across sibling folders in the same directory.
+6. **[Multi-Phase Segmentation]**: Confirm plan is split into sequential checkpointed phases (Fases A a F).
+7. **[1-to-1 Content Verification]**: Confirm actual text and byte hashes before proposing moves or purges.
+8. **[Recycle Bin Safety]**: Verify deletion commands route to OS Recycle Bin, never permanent hard unlink.
+9. **[Transaction Journal]**: Ensure `.xyz-folder/manifest.json` is initialized.
 
 ---
 
-## 3. Agent Execution Protocol (Step-by-Step)
+## 7. Agent Execution Protocol (Step-by-Step)
 
-When an AI assistant executes this skill:
-
-### Step 1: Dynamic Discovery & File Signature Analysis
-- Never assume hardcoded paths. Detect the user's primary folder dynamically via OS standards (Windows User Shell Folders / Linux XDG / macOS).
-- Detect the user's language (e.g., Spanish or English) to localize all category names.
-- Analyze file signatures and extensions. For unknown, extensionless, or exotic files, inspect **magic bytes** (binary headers) to infer their type.
-
-### Step 2: Interactive 3-Point Debate & Alignment Interview
-Before writing code or moving data, debate the plan interactively with the user:
-1. **Categories & Emojis**: Present the tailored taxonomy proposal adapted to their specific files.
-2. **Nesting Depth**: Confirm whether they prefer subcategories (`[Category]/[Subcategory]/`) or a flatter single-tier structure.
-3. **Exclusions & Edge Cases**: Ask if any specific folders, project repos, or extensions should be kept intact.
-4. **Unknown Files**: If ambiguous files remain, ask the user whether to isolate them in `[📦] [Sin Clasificar]` or leave them untouched in root.
-- **Wait for explicit user confirmation** before proceeding.
-
-### Step 3: Script Synthesis in `.xyz-folder/organize_session.py`
-- Generate an auditable, tailored Python script inside `.xyz-folder/organize_session.py` containing:
-  - Header documenting the agreed categories and exclusions.
-  - Pre-flight disk space and file lock checks.
-  - Copy-verify loop and transaction journaling.
-  - OS Recycle Bin quarantine functions.
-
-### Step 4: Staged Copy, Verification & Automated Source Cleanup
-- **Copy First**: Copy files to the new categorized structure, keeping original files 100% untouched as a live safety backup.
-- **Journal Transaction**: Record every copied pair into `.xyz-folder/manifest.json`.
-- **Byte Verification**: Verify that 100% of destination file sizes and checksums match the source.
-- **Source Purge upon 100% Verification**:
-  - Once 100% of files are verified in the destination with zero errors, proceed to eliminate the original files by sending them to the **OS Recycle Bin / Trash** (or deleting verified originals).
-  - This frees up duplicate storage space immediately while preserving a safety recovery window in the OS Recycle Bin and the rollback manifest `.xyz-folder/manifest.json`.
-  - If any single file fails transfer or verification, the purge is immediately aborted and the original files remain completely intact.
-
-### Step 5: Adaptive Tree Completion Report
-Present the final result with an adaptive visual tree matching the user's actual files and language:
-
-```markdown
-### Reorganización de <Directorio_Objetivo> Completada 📂
-
-```text
-<Directorio_Objetivo>/
-├── [🎨] [<Categoría_A>]/
-│   ├── [🎬] [<Subcategoría_1>]/   (<N> elementos)
-│   └── [🖼️] [<Subcategoría_2>]/   (<N> elementos)
-├── [📄] [<Categoría_B>]/
-│   └── [📑] [<Subcategoría_3>]/   (<N> elementos)
-└── [🗜️] [<Categoría_C>]/
-    └── [📦] [<Subcategoría_4>]/   (<N> elementos)
-```
-*Total organizado: <N> archivos (<Tamaño_Total> reorganizados). Cero pérdida de datos.*
-```
-
-### Step 6: Disk & Background Tasks Telemetry (When Applicable)
-If a heavy background migration (robocopy/rsync/background worker) is active:
-
-```markdown
-### Estado del Disco y Tareas en Segundo Plano 💾
-
-- **Tarea Activa**: `<Identificador o herramienta (e.g., robocopy / rsync / task-xyz)>`
-- **Ruta Origen $\rightarrow$ Destino**: `<Origen>` $\rightarrow$ `<Destino>`
-- **Volumen & Progreso**: `<Tamaño transferido>` / `<Tamaño total>` (`<Porcentaje>%`)
-- **I/O & Rendimiento**: Ancho de banda protegido (evitando saturación de cabezales en discos mecánicos HDD).
-- **Espacio Libre en Disco**: `<Espacio libre restante>` en la unidad destino.
-```
-
-### Step 7: Rollback / Undo on Demand
-If the user requests to revert ("deshazlo", "undo", "vuelve atrás", "cancela el progreso"):
-- **Full Rollback**:
-  ```bash
-  python3 scripts/organize.py --target "/path/to/folder" --undo
-  ```
-  Every file is restored to its exact original path, and newly created empty folders are cleanly removed.
-- **Selective Restoration**:
-  ```bash
-  python3 scripts/organize.py --target "/path/to/folder" --restore-filter ".pdf"
-  ```
-  Restores only specific files or extensions while keeping the rest organized.
-
----
-
-## 3. Reference CLI Usage
-
-```bash
-# Preview proposed moves without touching files:
-python3 scripts/organize.py --target "/path/to/folder" --dry-run
-
-# Organize with explicit language selection:
-python3 scripts/organize.py --target "/path/to/folder" --lang es
-
-# Full undo / rollback:
-python3 scripts/organize.py --target "/path/to/folder" --undo
-
-# Selective restore:
-python3 scripts/organize.py --target "/path/to/folder" --restore-filter "2026"
-```
-
----
-
-## 4. Illustrative Taxonomy Reference
-
-| English (`--lang en`) | Spanish (`--lang es`) | Example Extensions |
-| :--- | :--- | :--- |
-| `[📦] [Installers]/[💻] [Desktop Apps]` | `[📦] [Instaladores]/[💻] [Programas]` | `.exe`, `.msi`, `.appx`, `.pkg`, `.dmg`, `.deb` |
-| `[📦] [Installers]/[📱] [Mobile & Packages]`| `[📦] [Instaladores]/[📱] [Android & APK]` | `.apk`, `.xapk`, `.ipa`, `.jar` |
-| `[📄] [Documents]/[📑] [PDFs & Books]` | `[📄] [Documentos]/[📑] [PDFs & Libros]` | `.pdf`, `.epub`, `.mobi`, `.azw3`, `.cbr`, `.cbz` |
-| `[📄] [Documents]/[📊] [Office & Sheets]`| `[📄] [Documentos]/[📊] [Ofimática]` | `.docx`, `.doc`, `.xlsx`, `.xls`, `.csv`, `.pptx`|
-| `[📄] [Documents]/[📝] [Notes & Text]` | `[📄] [Documentos]/[📝] [Notas & Textos]` | `.txt`, `.md`, `.log`, `.rtf` |
-| `[🎨] [Media]/[🖼️] [Images]` | `[🎨] [Multimedia]/[🖼️] [Imágenes]` | `.png`, `.jpg`, `.jpeg`, `.webp`, `.svg`, `.gif` |
-| `[🎨] [Media]/[🎬] [Videos]` | `[🎨] [Multimedia]/[🎬] [Vídeos]` | `.mp4`, `.mkv`, `.avi`, `.mov`, `.webm`, `.srt` |
-| `[🎨] [Media]/[🎵] [Audio]` | `[🎨] [Multimedia]/[🎵] [Audio]` | `.mp3`, `.flac`, `.wav`, `.m4a`, `.aac`, `.ogg` |
-| `[🗜️] [Archives]/[📦] [ZIP & RAR]` | `[🗜️] [Comprimidos]/[📦] [ZIP & RAR]` | `.zip`, `.rar`, `.7z`, `.tar`, `.gz`, `.xz` |
-| `[🗜️] [Archives]/[💿] [Disk Images & ISOs]`| `[🗜️] [Comprimidos]/[💿] [Imágenes ISO]` | `.iso`, `.img`, `.vhd`, `.torrent` |
-| `[💻] [Development & AI]/[🤖] [Models]` | `[💻] [Desarrollo & AI]/[🤖] [Modelos & Pesos]` | `.gguf`, `.safetensors`, `.onnx`, `.pt` |
-| `[💻] [Development & AI]/[🐙] [Repos & Code]`| `[💻] [Desarrollo & AI]/[🐙] [Código & Repos]` | `.py`, `.js`, `.ts`, `.rs`, `.go`, `.html` |
-| `[💻] [Development & AI]/[🛠️] [Scripts]` | `[💻] [Desarrollo & AI]/[🛠️] [Scripts & Config]`| `.sh`, `.bash`, `.ps1`, `.bat`, `.json`, `.yaml` |
+1. **Discovery & Context**: Inspect depth-1 inventory, detect language, identify Git repos.
+2. **Interactive Alignment**: Present the Naming Syntax Catalog, Gravity Hierarchy, and proposed visual Before vs After.
+3. **Phase-by-Phase Execution**: Execute each phase only after receiving explicit user confirmation.
+4. **Verification & Report**: Check zero orphan files, confirm Git status, display final aesthetic tree.
+5. **Rollback Ready**: Stand by with `.xyz-folder/manifest.json` for on-demand rollback.
